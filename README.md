@@ -1,4 +1,6 @@
-## Note cours
+Shenjun LIN, Antoine THENEVIN, Florian VAZELLE
+
+## Note cours
 
 Facteur de dévaluation gamma
 
