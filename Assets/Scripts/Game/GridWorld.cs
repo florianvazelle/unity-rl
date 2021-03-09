@@ -42,6 +42,8 @@ public class GridWorld : MonoBehaviour
         public bool isFinal() {
             return pos == goal ;
         }
+
+        // TODO : make a isAction state
     }
 
     // Game state
@@ -62,7 +64,7 @@ public class GridWorld : MonoBehaviour
     // Unity
     private GameObject goPlayer, goGoal;
     public Button yourButton;
-    public Sprite tileSprite, arrowUp, arrowLeft, arrowDown, arrowRigth;
+    public Sprite tileSprite, arrowUp, arrowLeft, arrowDown, arrowRight;
     public Font arial;
 
     // Markov
@@ -141,7 +143,7 @@ public class GridWorld : MonoBehaviour
     }
 
     void TaskOnClick() {
-        IState currentState = new State { pos = player };
+        IState currentState = new State { pos = player }; // TODO remove player and use a gameState like in tictactoe
 
         try {
             int act = markovIA.Think(currentState);
@@ -259,7 +261,7 @@ public class GridWorld : MonoBehaviour
                 sprite = arrowDown;
                 break;
             case (int)Actions.RIGHT:
-                sprite = arrowRigth;
+                sprite = arrowRight;
                 break;
         }
 
