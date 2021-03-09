@@ -82,6 +82,17 @@ public class TicTacToe : MonoBehaviour
             
             return false;
         } 
+
+        public List<int> getActions()
+        {
+            List<int> availableActions = new List<int>();
+
+            for(int i = 0 ; i < 8 ; i++){
+                if (board[i] == empty) availableActions.Add(i);
+            }
+
+            return availableActions;
+        }
     }
 
     // Game state
