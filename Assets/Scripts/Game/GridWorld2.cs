@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GridWorld : MonoBehaviour
+public class GridWorld2 : MonoBehaviour
 {
 
     public struct State : IState, IEquatable<State>
-    {   
+    {
         //
         // To compare State
         //
@@ -24,14 +24,14 @@ public class GridWorld : MonoBehaviour
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof (State)) return false;
+            if (obj.GetType() != typeof(State)) return false;
             return Equals((State)obj);
         }
 
         public override int GetHashCode()
         {
             return (this.pos != null ? this.pos.GetHashCode() : 0);
-        } 
+        }
 
         //
         // Element of the custom GridWorld's State
@@ -44,7 +44,7 @@ public class GridWorld : MonoBehaviour
         public bool HasActions { get; set; }
         public List<int> PossibleActions { get; set; }
 
-        public State (Vector2 playerPos)
+        public State(Vector2 playerPos)
         {
             pos = playerPos;
 
@@ -57,7 +57,8 @@ public class GridWorld : MonoBehaviour
     // Game state
     public const int WIDTH = 8, HEIGHT = 8;
 
-    public enum Actions {
+    public enum Actions
+    {
         IDLE = 0,
         UP = 1,
         LEFT = 2,
@@ -77,13 +78,13 @@ public class GridWorld : MonoBehaviour
     // Markov
     private List<IState> states;
     private static List<int> actions = new List<int>() { (int)Actions.UP, (int)Actions.LEFT, (int)Actions.DOWN, (int)Actions.RIGHT };
-    private MarkovPolicy markovIA;
+    private MarkovValue markovIA;
 
     // Debug
     private static Utils.Logger logger = new Utils.Logger("GridWorld");
     int iteration = 0;
     void Start()
-    {   
+    {
         //
         // Game state
         player = new Vector2(0, 1);
@@ -103,17 +104,17 @@ public class GridWorld : MonoBehaviour
 
         // Initialize area
         area = new Dictionary<Vector2, Cell>();
-        for(int x = 0; x < WIDTH; x++)
+        for (int x = 0; x < WIDTH; x++)
         {
-            for(int y = 0; y < HEIGHT; y++)
+            for (int y = 0; y < HEIGHT; y++)
             {
                 Cell c = new Cell { value = -1 };
                 Vector2 pos = new Vector2(x, y);
 
                 // Set cell specific value
-                if (pos == player) c = new Cell { value = 0 }; 
-                if (pos == goal) c = new Cell { value = 1000 }; 
-                if (obstacles.Contains(pos)) c = new Cell { value = -1000 }; 
+                if (pos == player) c = new Cell { value = 0 };
+                if (pos == goal) c = new Cell { value = 1000 };
+                if (obstacles.Contains(pos)) c = new Cell { value = -1000 };
 
                 area.Add(pos, c);
             }
@@ -124,7 +125,7 @@ public class GridWorld : MonoBehaviour
         {
             SpawnTile((int)cell.Key.x, (int)cell.Key.y, (cell.Value.value == -1) ? new Color(1, 1, 1) : (cell.Value.value == -1000) ? new Color(1, 0, 0) : new Color(0, 1, 0));
         }
-        
+
         //
         // Unity
         goPlayer = GameObject.Find("Player");
@@ -138,9 +139,9 @@ public class GridWorld : MonoBehaviour
         //
         // Markov
         states = new List<IState>();
-        for(int x = 0; x < WIDTH; x++)
+        for (int x = 0; x < WIDTH; x++)
         {
-            for(int y = 0; y < HEIGHT; y++)
+            for (int y = 0; y < HEIGHT; y++)
             {
                 Vector2 pos = new Vector2(x, y);
 
@@ -149,26 +150,28 @@ public class GridWorld : MonoBehaviour
             }
         }
 
-        markovIA = new MarkovPolicy(states, actions, Play);
+        markovIA = new MarkovValue(states, actions, Play);
 
-         foreach(var state in states)
-         {
-             State s = (State)state;
+        // foreach(var state in states)
+        // {
+        //     State s = (State)state;
 
-             if (s.pos == goal) continue;
-             SpawnArrow((int)s.pos.x, (int)s.pos.y, markovIA.policy[s]);
-         }
+        //     if (s.pos == goal) continue;
+        //     SpawnArrow((int)s.pos.x, (int)s.pos.y, markovIA.policy[s]);
+        // }
 
         //
         // Debug
         Button btn = yourButton.GetComponent<Button>();
-		btn.onClick.AddListener(TaskOnClick);
+        btn.onClick.AddListener(TaskOnClick);
     }
 
-    void TaskOnClick() {
+    void TaskOnClick()
+    {
         IState currentState = new State(player);
 
-        try {
+        try
+        {
             int act = markovIA.Think(currentState);
 
             // move player
@@ -177,10 +180,10 @@ public class GridWorld : MonoBehaviour
 
             // update rendering
             Render();
-            
+
             // Debug
             float max = 0, min = 1000;
-            foreach(var state in states) 
+            foreach (var state in states)
             {
                 min = Mathf.Min(min, markovIA.v_s[state]);
                 max = Mathf.Max(max, markovIA.v_s[state]);
@@ -188,7 +191,7 @@ public class GridWorld : MonoBehaviour
 
             var range = max - min;
 
-            foreach(var state in states)
+            foreach (var state in states)
             {
                 State s = (State)state;
 
@@ -196,17 +199,19 @@ public class GridWorld : MonoBehaviour
                 float value = ((float)((markovIA.v_s[s] - min))) / range;
                 SpawnTile((int)s.pos.x, (int)s.pos.y, new Color(value, value, value));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             logger.WriteLine("Exception: " + e.Message);
         }
-	}
+    }
 
     public static Cell Play(IState iState, int action, out IState newIState)
     {
         // execute action
         State state = (State)iState;
 
-        switch(action)
+        switch (action)
         {
             case (int)Actions.IDLE:
                 break;
@@ -224,7 +229,7 @@ public class GridWorld : MonoBehaviour
                 break;
             default:
                 Debug.Log("Unkonwn action.");
-                break; 
+                break;
         }
 
         // clamp position in the area
@@ -234,12 +239,13 @@ public class GridWorld : MonoBehaviour
         // define the new state
         newIState = new State(state.pos);
 
+
         // return the cell data
-        return area[state.pos]; 
+        return area[state.pos];
     }
 
     void Render()
-    {   
+    {
         goPlayer.transform.position = new Vector3(player.x, player.y);
         iteration = iteration + 1;
         Debug.Log(iteration);
@@ -253,13 +259,15 @@ public class GridWorld : MonoBehaviour
     {
         string name = x + ":" + y;
         GameObject g = GameObject.Find(name);
-        if (g == null) {
-            g = new GameObject (name);
+        if (g == null)
+        {
+            g = new GameObject(name);
         }
         g.transform.position = new Vector3(x, y);
 
         var tile = g.GetComponent<SpriteRenderer>();
-        if (tile == null) {
+        if (tile == null)
+        {
             tile = g.AddComponent<SpriteRenderer>();
         }
 
@@ -271,7 +279,7 @@ public class GridWorld : MonoBehaviour
     {
 
         Sprite sprite = tileSprite;
-        switch(action)
+        switch (action)
         {
             case (int)Actions.UP:
                 sprite = arrowUp;
@@ -289,7 +297,8 @@ public class GridWorld : MonoBehaviour
 
         string name = x + ":" + y + "arrow";
         GameObject g = GameObject.Find(name);
-        if (g == null) {
+        if (g == null)
+        {
             g = new GameObject(name);
         }
 
@@ -297,7 +306,8 @@ public class GridWorld : MonoBehaviour
         g.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
 
         var tile = g.GetComponent<SpriteRenderer>();
-        if (tile == null) {
+        if (tile == null)
+        {
             tile = g.AddComponent<SpriteRenderer>();
         }
 
