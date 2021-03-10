@@ -159,7 +159,6 @@ MonoBehaviour:
     type: 3}
   arrowRight: {fileID: 2937107722729227608, guid: f090911ef423dca18b5741b2002df2e0,
     type: 3}
-  arial: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &381938785
 Transform:
   m_ObjectHideFlags: 0

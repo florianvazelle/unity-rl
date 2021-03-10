@@ -27,6 +27,7 @@ public class MarkovValue : MarkovBase
             foreach (var s in m_states)
             {
                 if (s.isFinal()) continue; // ne modifie pas v_s si état final
+                if (!v_s.ContainsKey(s)) continue;
 
                 float tmp = v_s[s];
 
@@ -34,6 +35,7 @@ public class MarkovValue : MarkovBase
                 foreach (var action in m_actions)
                 {  
                     Cell reward = m_transition(s, action, out newState);
+                    if (!v_s.ContainsKey(newState)) continue;
                     float current = (reward.value + GAMMA * v_s[newState]);
                     if (s.Equals(newState)) current -= 1;
                     if (current > max) max = current;
@@ -53,6 +55,7 @@ public class MarkovValue : MarkovBase
         foreach (var action in m_actions)
         {  
             Cell reward = m_transition(state, action, out newState);
+            if (!v_s.ContainsKey(newState)) continue;
             float current = (reward.value + GAMMA * v_s[newState]);
             if (state.Equals(newState)) current -= 1;
             if (current > max) 

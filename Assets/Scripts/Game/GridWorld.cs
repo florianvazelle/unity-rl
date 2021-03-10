@@ -42,8 +42,6 @@ public class GridWorld : MonoBehaviour
         public bool isFinal() {
             return pos == goal ;
         }
-
-        // TODO : make a isAction state
     }
 
     // Game state
@@ -65,15 +63,14 @@ public class GridWorld : MonoBehaviour
     private GameObject goPlayer, goGoal;
     public Button yourButton;
     public Sprite tileSprite, arrowUp, arrowLeft, arrowDown, arrowRight;
-    public Font arial;
 
     // Markov
     private List<IState> states;
     private List<int> actions;
-    private MarkovValue markovIA;
+    private MarkovPolicy markovIA;
 
     // Debug
-    private static Utils.Logger logger;
+    private static Utils.Logger logger = new Utils.Logger("GridWorld");
 
     void Start()
     {   
@@ -86,7 +83,7 @@ public class GridWorld : MonoBehaviour
             new Vector2(2, 2),
             new Vector2(3, 3),
             new Vector2(0, 3),
-            // new Vector2(4, 4),
+            new Vector2(4, 4),
         };
 
         // Initialize area
@@ -95,19 +92,22 @@ public class GridWorld : MonoBehaviour
         {
             for(int y = 0; y < HEIGHT; y++)
             {
-                area.Add(new Vector2(x, y), new Cell { value = -1, prob = ((float)(x + y) / (WIDTH + HEIGHT)) });
+                Cell c = new Cell { value = -1 };
+                Vector2 pos = new Vector2(x, y);
+
+                // Set cell specific value
+                if (pos == player) c = new Cell { value = 0 }; 
+                if (pos == goal) c = new Cell { value = 1000 }; 
+                if (obstacles.Contains(pos)) c = new Cell { value = -1000 }; 
+
+                area.Add(new Vector2(x, y), c);
             }
         }
-
-        // Set cell specific value
-        area[player] = new Cell { value = 0, prob = 0f };
-        area[goal] = new Cell { value = 1000, prob = area[goal].prob };
-        foreach (var obstacle in obstacles) area[obstacle] = new Cell { value = -1000, prob = area[obstacle].prob };
 
         // Draw default tile
         foreach (var cell in area)
         {
-            SpawnTile((int)cell.Key.x, (int)cell.Key.y, (cell.Value.value == -1) ? new Color(255, 255, 255) : (cell.Value.value == -1000) ? new Color(255, 0, 0) : new Color(0, 255, 0));
+            SpawnTile((int)cell.Key.x, (int)cell.Key.y, (cell.Value.value == -1) ? new Color(1, 1, 1) : (cell.Value.value == -1000) ? new Color(1, 0, 0) : new Color(0, 1, 0));
         }
         
         //
@@ -127,28 +127,35 @@ public class GridWorld : MonoBehaviour
         {
             for(int y = 0; y < HEIGHT; y++)
             {
-                states.Add(new State { pos = new Vector2(x, y) });
+                Vector2 pos = new Vector2(x, y);
+
+                if (!(obstacles.Contains(pos)))
+                    states.Add(new State { pos = new Vector2(x, y) });
             }
         }
 
         actions = new List<int>() { (int)Actions.UP, (int)Actions.LEFT, (int)Actions.DOWN, (int)Actions.RIGHT };
-        markovIA = new MarkovValue(states, actions, Play);
+        markovIA = new MarkovPolicy(states, actions, Play);
+
+        // foreach(var state in states)
+        // {
+        //     State s = (State)state;
+
+        //     if (s.pos == goal) continue;
+        //     SpawnArrow((int)s.pos.x, (int)s.pos.y, markovIA.policy[s]);
+        // }
 
         //
         // Debug
-        logger = new Utils.Logger("GridWorld");
-
         Button btn = yourButton.GetComponent<Button>();
 		btn.onClick.AddListener(TaskOnClick);
     }
 
     void TaskOnClick() {
-        IState currentState = new State { pos = player }; // TODO remove player and use a gameState like in tictactoe
+        IState currentState = new State { pos = player };
 
         try {
             int act = markovIA.Think(currentState);
-            Debug.Log(ActionToString(act));
-            logger.WriteLine("Final Action " + act);
 
             // move player
             Play(currentState, act, out currentState);
@@ -156,26 +163,25 @@ public class GridWorld : MonoBehaviour
 
             // update rendering
             Render();
-
+            
             // Debug
-            float max = 0;
-            foreach(var state in states)
+            float max = 0, min = 1000;
+            foreach(var state in states) 
             {
+                min = Mathf.Min(min, markovIA.v_s[state]);
                 max = Mathf.Max(max, markovIA.v_s[state]);
             }
+
+            var range = max - min;
 
             foreach(var state in states)
             {
                 State s = (State)state;
-                // SpawnArrow((int)s.pos.x, (int)s.pos.y, markovIA.policy[state]);
 
-                if (area[s.pos].value != -1000)
-                {
-                    float value = ((float)(markovIA.v_s[state] * 255)) / max;
-                    SpawnTile((int)s.pos.x, (int)s.pos.y, new Color(value, value, value));
-                }
+                if (s.pos == goal) continue;
+                float value = ((float)((markovIA.v_s[s] - min))) / range;
+                SpawnTile((int)s.pos.x, (int)s.pos.y, new Color(value, value, value));
             }
-
         } catch (Exception e) {
             logger.WriteLine("Exception: " + e.Message);
         }
@@ -227,7 +233,7 @@ public class GridWorld : MonoBehaviour
     // Helpers
     //
 
-    void SpawnTile(int x, int y, Color color)
+    private void SpawnTile(int x, int y, Color color)
     {
         string name = x + ":" + y;
         GameObject g = GameObject.Find(name);
@@ -245,7 +251,7 @@ public class GridWorld : MonoBehaviour
         tile.color = color;
     }
 
-    void SpawnArrow(int x, int y, int action)
+    private void SpawnArrow(int x, int y, int action)
     {
 
         Sprite sprite = tileSprite;
@@ -268,7 +274,7 @@ public class GridWorld : MonoBehaviour
         string name = x + ":" + y + "arrow";
         GameObject g = GameObject.Find(name);
         if (g == null) {
-            g = new GameObject (name);
+            g = new GameObject(name);
         }
 
         g.transform.position = new Vector3(x, y);
@@ -280,45 +286,5 @@ public class GridWorld : MonoBehaviour
         }
 
         tile.sprite = sprite;
-    }
-
-    void SpawnText(int x, int y, string text)
-    {
-        string name = x + ":" + y + "text";
-        GameObject g = GameObject.Find(name);
-        if (g == null) {
-            g = new GameObject (name);
-        }
-
-        g.transform.SetParent( GameObject.Find( "Canvas" ).transform );
-        g.transform.localPosition = new Vector3(x*75, y*75);
-
-        var t = g.GetComponent<Text>();
-        if (t == null) {
-            t = g.AddComponent<Text>();
-        }
-
-        t.font = arial;
-        t.text = text;
-    }
-
-    string ActionToString(int action)
-    {
-        switch(action)
-        {
-            case 0:
-                return "x";
-            case (int)Actions.UP:
-                return "^";
-            case (int)Actions.LEFT:
-                return "<";
-            case (int)Actions.DOWN:
-                return "v";
-            case (int)Actions.RIGHT:
-                return ">";
-            default:
-                Debug.Log("Unkonwn action.");
-                return " "; 
-        }
     }
 }

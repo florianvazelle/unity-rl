@@ -64,10 +64,12 @@ public class MarkovPolicy : MarkovBase
             foreach (var state in m_states)
             {
                 if (state.isFinal()) continue; // ne modifie pas v_s si état final
+                if (!v_s.ContainsKey(state)) continue;
 
                 float tmp = v_s[state];
 
                 Cell reward = m_transition(state, (int)policy[state], out newState);
+                if (!v_s.ContainsKey(newState)) continue;
                 float current = (reward.value + GAMMA * v_s[newState]);
                 if (state.Equals(newState)) current -= 1;
                 
@@ -91,6 +93,7 @@ public class MarkovPolicy : MarkovBase
         foreach (var state in m_states)
         {
             if (state.isFinal()) continue; // ne modifie pas v_s si état final
+            if (!policy.ContainsKey(state)) continue;
             
             int tmp = (int)policy[state];
 
@@ -100,6 +103,7 @@ public class MarkovPolicy : MarkovBase
             foreach (var action in m_actions)
             {  
                 Cell reward = m_transition(state, action, out newState);
+                if (!v_s.ContainsKey(newState)) continue;
                 float current = (reward.value + GAMMA * v_s[newState]);
                 if (state.Equals(newState)) current -= 1;
                 if (current > max) 
