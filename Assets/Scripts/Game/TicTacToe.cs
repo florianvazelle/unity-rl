@@ -77,7 +77,7 @@ public class TicTacToe : MonoBehaviour
             };
 
             for(int i = 0 ; i < 8 ; i++){
-                if(boardList[i][0] == player && boardList[i][1] == player && boardList[i][2] == player) return true;
+                if(boardList[i,0] == player && boardList[i,1] == player && boardList[i,2] == player) return true;
             }
             
             return false;
@@ -136,16 +136,19 @@ public class TicTacToe : MonoBehaviour
 
     void TaskOnClick() {
         try {
-            int act = markovIA.Think(gameState);
-            Debug.Log(ActionToString(act));
+            //int act = markovIA.Think(gameState);
+            int act = UnityEngine.Random.Range(0, 9);
+            //Debug.Log(ActionToString(act));
 
+            IState iGameState;
             // move player
-            Play(gameState, act, out gameState);
+            Play(gameState, act, out iGameState);
+            gameState = (State)iGameState;
 
             // update rendering
             Render();
         } catch (Exception e) {
-            logger.WriteLine("Exception: " + e.Message);
+            Console.WriteLine("Exception: " + e.Message);
         }
 	}
 
@@ -163,11 +166,14 @@ public class TicTacToe : MonoBehaviour
         {
             Debug.Log("Impossible action.");
         }
-        
-        if (state.isWin(player)) return 1000;
 
+        // Define the output Istate
+        newIState = state;
+        if (state.isWin(player)) return new Cell { value = 1000 };
+
+        // Update state
         state.currentPlayer = player == player1 ? player2 : player1;
-        return -1; 
+        return new Cell { value = -1 }; 
     }
 
     void Render()
