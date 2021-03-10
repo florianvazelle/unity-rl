@@ -48,56 +48,78 @@ public class TicTacToe : MonoBehaviour
         public int[] board;
         public int currentPlayer;
 
-        public bool isFinal() {
+        // Property implementation:
+        public bool IsFinal { get; set; }
+        public bool HasActions { get; set; }
+        public List<int> PossibleActions { get; set; }
+        public int IsWin { get; set; }
+
+        public State(int[] pBoard, int player)
+        {
+            board = new int[9];
+            for ( int i = 0; i < pBoard.Length; i++ ) {
+                board[i] = pBoard[i];
+            }
+            currentPlayer = player;
+
+            // Compute if is Win for a player
+            IsWin = 0;
+            for(int j = 1; j < 3; j++)
+            {
+                // test all possibility of combinaison
+                int[,] boardList = new int[8,3] {
+                    {board[0], board[1], board[2]},
+                    {board[3], board[4], board[5]},
+                    {board[6], board[7], board[8]},
+                    {board[0], board[3], board[6]},
+                    {board[1], board[4], board[7]},
+                    {board[2], board[5], board[8]},
+                    {board[0], board[4], board[8]},
+                    {board[2], board[4], board[6]}
+                };
+
+                for(int i = 0 ; i < 8 ; i++){
+                    if(boardList[i,0] == j && boardList[i,1] == j && boardList[i,2] == j)
+                    {
+                        IsWin = i;
+                        break;
+                    }
+                }
+            }
+            
+            // Compute if it is a final state
             // plus aucune possibilitée
             bool isEnd = true;
             for(int i = 0 ; i < this.board.Length ; i++) {
                 isEnd = isEnd && this.board[i] != empty;
             }
 
-            if (isEnd) return true;
-
-            // ou des deux joueurs a gagné
-            if (isWin(player1)) return true;
-            if (isWin(player2)) return true;
-            return false;
-        }
-
-        public bool isWin(int player)
-        {
-            int[,] boardList = new int[8,3] {
-                {board[0], board[1], board[2]},
-                {board[3], board[4], board[5]},
-                {board[6], board[7], board[8]},
-                {board[0], board[3], board[6]},
-                {board[1], board[4], board[7]},
-                {board[2], board[5], board[8]},
-                {board[0], board[4], board[8]},
-                {board[2], board[4], board[6]}
-            };
-
-            for(int i = 0 ; i < 8 ; i++){
-                if(boardList[i,0] == player && boardList[i,1] == player && boardList[i,2] == player) return true;
+            if (isEnd) {
+                IsFinal = true;
+            } else {
+                // ou des deux joueurs a gagné
+                if (IsWin != 0) {
+                    IsFinal = true;
+                } else {
+                    IsFinal = false;
+                }
             }
-            
-            return false;
-        } 
 
-        public List<int> getActions()
-        {
+            // regarde la liste des actions qu'il est possible de réaliser
             List<int> availableActions = new List<int>();
 
             for(int i = 0 ; i < 8 ; i++){
                 if (board[i] == empty) availableActions.Add(i);
             }
 
-            return availableActions;
+            HasActions = availableActions.Count > 0;
+            PossibleActions = availableActions;
         }
     }
 
     // Game state
     private State gameState;
-    private static int empty = 0, player1 = 1, player2 = 2;
+    private readonly static int empty = 0, player1 = 1, player2 = 2;
 
     public enum Actions {
         TOP_LEFT = 0,
@@ -117,16 +139,24 @@ public class TicTacToe : MonoBehaviour
 
     // Markov
     private List<IState> states;
-    private List<int> actions;
+    private readonly static List<int> actions = new List<int>() { 
+        (int)Actions.TOP_LEFT, (int)Actions.TOP_MIDDLE, (int)Actions.TOP_RIGHT, 
+        (int)Actions.MIDDLE_LEFT, (int)Actions.CENTER, (int)Actions.MIDDLE_RIGTH, 
+        (int)Actions.BOTTOM_LEFT, (int)Actions.BOTTOM_MIDDLE, (int)Actions.BOTTOM_RIGHT
+    };
+    private MarkovPolicy markovIA;
 
     void Start()
     {   
         //
         // Game State
-        gameState = new State {
-            board = new int[9],
-            currentPlayer = player1
+        gameState = new State(new int[9], player1);
+
+        states = new List<IState>() {
+            gameState
         };
+
+        markovIA = new MarkovPolicy(states, actions, Play);
 
         //
         // Debug
@@ -136,11 +166,9 @@ public class TicTacToe : MonoBehaviour
 
     void TaskOnClick() {
         try {
-            //int act = markovIA.Think(gameState);
-            int act = UnityEngine.Random.Range(0, 9);
-            //Debug.Log(ActionToString(act));
+            int act = markovIA.Think(gameState);
 
-            IState iGameState;
+            IState iGameState = gameState;
             // move player
             Play(gameState, act, out iGameState);
             gameState = (State)iGameState;
@@ -157,9 +185,14 @@ public class TicTacToe : MonoBehaviour
         State state = (State)iState;
         int player = state.currentPlayer;
 
-        if (state.board[action] == empty) 
+        int[] board = new int[9];
+        for ( int i = 0; i < state.board.Length; i++ ) {
+            board[i] = state.board[i];
+        }
+
+        if (board[action] == empty) 
         {
-            if (action >= 0 && action < 9) state.board[action] = player;
+            if (action >= 0 && action < 9) board[action] = player;
             else Debug.Log("Unknown action.");
         }
         else
@@ -167,12 +200,11 @@ public class TicTacToe : MonoBehaviour
             Debug.Log("Impossible action.");
         }
 
-        // Define the output Istate
-        newIState = state;
-        if (state.isWin(player)) return new Cell { value = 1000 };
-
         // Update state
-        state.currentPlayer = player == player1 ? player2 : player1;
+        // Define the output Istate
+        newIState = new State(board, player == player1 ? player2 : player1);
+
+        if (state.IsWin == player) return new Cell { value = 1000 };
         return new Cell { value = -1 }; 
     }
 
