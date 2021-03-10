@@ -39,8 +39,18 @@ public class GridWorld : MonoBehaviour
 
         public Vector2 pos;
 
-        public bool isFinal() {
-            return pos == goal ;
+        // Property implementation:
+        public bool IsFinal { get; set; }
+        public bool HasActions { get; set; }
+        public List<int> PossibleActions { get; set; }
+
+        public State (Vector2 playerPos)
+        {
+            pos = playerPos;
+
+            IsFinal = (playerPos == goal);
+            HasActions = !obstacles.Contains(playerPos);
+            PossibleActions = actions;
         }
     }
 
@@ -56,7 +66,7 @@ public class GridWorld : MonoBehaviour
     };
 
     private static Vector2 player, goal;
-    private List<Vector2> obstacles;
+    private static List<Vector2> obstacles;
     private static Dictionary<Vector2, Cell> area;
 
     // Unity
@@ -66,7 +76,7 @@ public class GridWorld : MonoBehaviour
 
     // Markov
     private List<IState> states;
-    private List<int> actions;
+    private static List<int> actions;
     private MarkovPolicy markovIA;
 
     // Debug
@@ -100,7 +110,7 @@ public class GridWorld : MonoBehaviour
                 if (pos == goal) c = new Cell { value = 1000 }; 
                 if (obstacles.Contains(pos)) c = new Cell { value = -1000 }; 
 
-                area.Add(new Vector2(x, y), c);
+                area.Add(pos, c);
             }
         }
 
@@ -130,7 +140,7 @@ public class GridWorld : MonoBehaviour
                 Vector2 pos = new Vector2(x, y);
 
                 if (!(obstacles.Contains(pos)))
-                    states.Add(new State { pos = new Vector2(x, y) });
+                    states.Add(new State(pos));
             }
         }
 
@@ -152,7 +162,7 @@ public class GridWorld : MonoBehaviour
     }
 
     void TaskOnClick() {
-        IState currentState = new State { pos = player };
+        IState currentState = new State(player);
 
         try {
             int act = markovIA.Think(currentState);
@@ -218,7 +228,7 @@ public class GridWorld : MonoBehaviour
         state.pos.y = (int)Mathf.Clamp(state.pos.y, 0, HEIGHT - 1);
 
         // define the new state
-        newIState = new State { pos = state.pos };
+        newIState = new State(state.pos);
 
         // return the cell data
         return area[state.pos]; 

@@ -18,7 +18,6 @@ public class MarkovBase {
 
     protected static Utils.Logger logger = new Utils.Logger("Markov");
 
-
     /**
      * Constructeur, on passe à l'algo :
      *
@@ -29,8 +28,8 @@ public class MarkovBase {
      */
     public MarkovBase(List<IState> states, List<int> actions, ConvertMethod transition)
     {
-        m_states = states;
-        m_actions = actions;
+        m_states = new List<IState>(states);
+        m_actions = new List<int>(actions);
         m_transition = transition;
     }
 
