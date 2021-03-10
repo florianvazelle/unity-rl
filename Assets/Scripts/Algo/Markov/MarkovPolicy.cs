@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using UnityEngine;
@@ -10,16 +11,16 @@ public class MarkovPolicy : MarkovBase
 
     public MarkovPolicy(List<IState> states, List<int> actions, ConvertMethod T) : base(states, actions, T)
     {
-        // intitialize v_s with a random number
         v_s = new Dictionary<IState, float>();
-        foreach (var state in m_states)
+        policy = new Dictionary<IState, int>();
+        foreach (var state in m_states.ToList())
         {
-            float value = Utils.RandomGenerator.RandomFloat(0, 1);
-            v_s.Add(state, value);
-            if (state.isFinal()) v_s[state] = 0;
-        }
+            // intitialize v_s with a random number
+            AddNewStateToVS(state);
 
-        RandomPolicy(out policy);
+            // Intialise la stratégie avec des actions aléatoires pour chaque état possible.
+            AddNewStateToPolicy(state);
+        }
 
         // train policy
         while (true)
@@ -31,23 +32,8 @@ public class MarkovPolicy : MarkovBase
 
     public override int Think(IState state)
     {
-        if (state.isFinal()) return 0;
+        if (state.IsFinal) return 0;
         return (int)policy[state];
-    }
-
-    /**
-     * Intialise la stratégie avec des actions aléatoires pour chaque état possible.
-     */
-    private void RandomPolicy(out Dictionary<IState, int> policy)
-    {
-        policy = new Dictionary<IState, int>();
-
-        foreach (var state in m_states)
-        {
-            if (state.isFinal()) continue;
-            int action = m_actions[Utils.RandomGenerator.RandomNumber(0, m_actions.Count)];
-            policy.Add(state, action);
-        }
     }
 
     /**
@@ -61,13 +47,28 @@ public class MarkovPolicy : MarkovBase
         {
             float delta = 0;
             
-            foreach (var state in m_states)
+            foreach (var state in m_states.ToList())
             {
-                if (state.isFinal()) continue; // ne modifie pas v_s si état final
+                if (state.IsFinal) continue; // ne modifie pas v_s si état final
+                if (!v_s.ContainsKey(state))
+                {
+                    if (state.HasActions) AddNewStateToVS(state);
+                    else continue;
+                }
+                if (!policy.ContainsKey(state))
+                {
+                    if (state.HasActions) AddNewStateToPolicy(state);
+                    else continue;
+                }
 
                 float tmp = v_s[state];
 
                 Cell reward = m_transition(state, (int)policy[state], out newState);
+                if (!v_s.ContainsKey(newState))
+                {
+                    if (newState.HasActions) AddNewStateToVS(newState);
+                    else continue;
+                }
                 float current = (reward.value + GAMMA * v_s[newState]);
                 if (state.Equals(newState)) current -= 1;
                 
@@ -88,18 +89,28 @@ public class MarkovPolicy : MarkovBase
         bool isStable = true;
         IState newState;
 
-        foreach (var state in m_states)
+        foreach (var state in m_states.ToList())
         {
-            if (state.isFinal()) continue; // ne modifie pas v_s si état final
+            if (state.IsFinal) continue; // ne modifie pas v_s si état final
+            if (!policy.ContainsKey(state))
+            {
+                if (state.HasActions) AddNewStateToPolicy(state);
+                else continue;
+            }
             
             int tmp = (int)policy[state];
 
             // argmax
             float max = -INFINITY;
             int act = 0;
-            foreach (var action in m_actions)
+            foreach (var action in state.PossibleActions)
             {  
                 Cell reward = m_transition(state, action, out newState);
+                if (!v_s.ContainsKey(newState))
+                {
+                    if (newState.HasActions) AddNewStateToVS(newState);
+                    else continue;
+                }
                 float current = (reward.value + GAMMA * v_s[newState]);
                 if (state.Equals(newState)) current -= 1;
                 if (current > max) 
@@ -115,5 +126,27 @@ public class MarkovPolicy : MarkovBase
         }
 
         return isStable;
+    }
+
+    //
+    // Helpers
+    //
+
+    private void AddNewStateToPolicy(IState state)
+    {
+        if (!m_states.Contains(state)) m_states.Add(state);
+        if (!state.IsFinal)
+        {
+            int action = state.PossibleActions[Utils.RandomGenerator.RandomNumber(0, state.PossibleActions.Count)];
+            policy.Add(state, action);
+        }
+    }
+
+    private void AddNewStateToVS(IState state)
+    {
+        if (!m_states.Contains(state)) m_states.Add(state);
+        float value = Utils.RandomGenerator.RandomFloat(0, 1);
+        v_s.Add(state, value);
+        if (state.IsFinal) v_s[state] = 0;
     }
 }

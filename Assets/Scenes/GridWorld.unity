@@ -131,6 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 381938785}
   - component: {fileID: 381938784}
+  - component: {fileID: 381938786}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -145,7 +146,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 381938783}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f5768e67f5ee4a8a78d47c3e62d6af0b, type: 3}
   m_Name: 
@@ -157,9 +158,8 @@ MonoBehaviour:
     type: 3}
   arrowDown: {fileID: 1078432722806360116, guid: f090911ef423dca18b5741b2002df2e0,
     type: 3}
-  arrowRigth: {fileID: 2937107722729227608, guid: f090911ef423dca18b5741b2002df2e0,
+  arrowRight: {fileID: 2937107722729227608, guid: f090911ef423dca18b5741b2002df2e0,
     type: 3}
-  arial: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &381938785
 Transform:
   m_ObjectHideFlags: 0
@@ -174,6 +174,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &381938786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 381938783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88b31fc2aebf36e0ea815ba1a04f26ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  yourButton: {fileID: 2057850698}
+  tileSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  arrowUp: {fileID: 4400419926977278709, guid: f090911ef423dca18b5741b2002df2e0, type: 3}
+  arrowLeft: {fileID: -7015129729083658203, guid: f090911ef423dca18b5741b2002df2e0,
+    type: 3}
+  arrowDown: {fileID: 1078432722806360116, guid: f090911ef423dca18b5741b2002df2e0,
+    type: 3}
+  arrowRight: {fileID: 2937107722729227608, guid: f090911ef423dca18b5741b2002df2e0,
+    type: 3}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,7 +303,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 532354446}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -290,10 +311,10 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 30, y: -35}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0, y: 0}
 --- !u!114 &532354448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,10 +336,10 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
-    m_FontStyle: 0
+    m_FontSize: 18
+    m_FontStyle: 1
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 1
     m_MaxSize: 40
     m_Alignment: 4
     m_AlignByGeometry: 0
@@ -326,7 +347,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Button
+  m_Text: Play
 --- !u!222 &532354449
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -594,7 +615,7 @@ GameObject:
   - component: {fileID: 2057850699}
   - component: {fileID: 2057850698}
   m_Layer: 5
-  m_Name: Button
+  m_Name: playButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -615,11 +636,11 @@ RectTransform:
   m_Father: {fileID: 1790195971}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -320, y: -234.69}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 20, y: 20}
   m_SizeDelta: {x: 160, y: 30}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0}
 --- !u!114 &2057850698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -676,7 +697,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6839622, g: 0.98484725, b: 1, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
