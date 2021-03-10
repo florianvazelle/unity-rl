@@ -81,7 +81,7 @@ public class GridWorld : MonoBehaviour
 
     // Debug
     private static Utils.Logger logger = new Utils.Logger("GridWorld");
-    int iteration = 0;
+
     void Start()
     {   
         //
@@ -241,8 +241,6 @@ public class GridWorld : MonoBehaviour
     void Render()
     {   
         goPlayer.transform.position = new Vector3(player.x, player.y);
-        iteration = iteration + 1;
-        Debug.Log(iteration);
     }
 
     //
