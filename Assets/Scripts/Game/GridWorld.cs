@@ -50,7 +50,7 @@ public class GridWorld : MonoBehaviour
 
             IsFinal = (playerPos == goal);
             HasActions = !obstacles.Contains(playerPos);
-            PossibleActions = actions;
+            PossibleActions = new List<int>(actions);
         }
     }
 
@@ -76,7 +76,7 @@ public class GridWorld : MonoBehaviour
 
     // Markov
     private List<IState> states;
-    private static List<int> actions;
+    private static List<int> actions = new List<int>() { (int)Actions.UP, (int)Actions.LEFT, (int)Actions.DOWN, (int)Actions.RIGHT };
     private MarkovPolicy markovIA;
 
     // Debug
@@ -144,7 +144,6 @@ public class GridWorld : MonoBehaviour
             }
         }
 
-        actions = new List<int>() { (int)Actions.UP, (int)Actions.LEFT, (int)Actions.DOWN, (int)Actions.RIGHT };
         markovIA = new MarkovPolicy(states, actions, Play);
 
         // foreach(var state in states)
