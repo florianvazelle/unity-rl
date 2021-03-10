@@ -4,9 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MonteCarlo : MarkovBase
+public class MonteCarlo : Base
 {
-
     // Pi(s) => dictionnaire de Istate (clef = Istate, value = int "action associée")
     public Dictionary<IState, int> Policy;
 
@@ -17,7 +16,7 @@ public class MonteCarlo : MarkovBase
 
         foreach (var state in m_states)
         {
-            int action = m_actions[Utils.RandomGenerator.RandomNumber(0, m_actions.Count)];
+            int action = state.PossibleActions[Utils.RandomGenerator.RandomNumber(0, state.PossibleActions.Count)];
             Policy.Add(state, action);
         }
     }
@@ -36,18 +35,33 @@ public class MonteCarlo : MarkovBase
         // Pour chaque état, initialiser la politique avec une action random
         // (Comme bcp de possibilité, un seul élément dans le dictionnaire)
 
-        // intitialize v_s with a random number
-        v_s = new Dictionary<IState, float>();
         Return_s = new Dictionary<(IState, int), List<float>>();
         Q_s = new Dictionary<(IState, int), float>();
-        foreach (var state in m_states) v_s.Add(state, 0f);
+
+        RandomPolicy();
+    }
+
+    private void AddNewStateToPolicy(IState state)
+    {
+        if (!m_states.Contains(state)) m_states.Add(state);
+        if (!state.IsFinal)
+        {
+            int action = state.PossibleActions[Utils.RandomGenerator.RandomNumber(0, state.PossibleActions.Count)];
+            Policy.Add(state, action);
+        }
+    }
+
+
+    public override int Think(IState state)
+    {
+        if (state.IsFinal) return 0;
 
         IState newState;
         // Loop forever (for each episode or game)
-        while (true)
+        for (int t = 0; t < 200; t++)
         {
             // start from a random state
-            IState s0 = m_states[0];
+            IState s0 = state;
             int a0 = s0.PossibleActions[0];
 
             // creation d'une liste de (State Action Reward)
@@ -66,9 +80,10 @@ public class MonteCarlo : MarkovBase
                     else break;
                 }
 
+                if (newState.IsFinal) break;
+
                 s0 = newState;
                 a0 = Policy[newState];
-                if (s0.IsFinal) break;
             }
 
             float G = 0;
@@ -78,51 +93,43 @@ public class MonteCarlo : MarkovBase
             {
                 // G = gamma * G + R(t+1) (reward de l'itération suivante) (on va de la fin au debut) (la derniére en premmier)
                 G = GAMMA * G + episode[i].Item3;
+
                 // Si on est pas deja passé par cet état
                 bool isAppear = false;
                 for (int j = 0; j < i; j++)
                 {
-                    if (episode[j].Item1 == episode[i].Item1 && episode[j].Item2 == episode[i].Item2)
-                    {
-                        isAppear = true;
-                    }
-
-
+                    if (episode[j].Item1.Equals(episode[i].Item1) && episode[j].Item2 == episode[i].Item2) isAppear = true;
                 }
+
                 if (!isAppear)
                 {
                     var key = (episode[i].Item1, episode[i].Item2);
-                    // on ajoute G à Returns(s, a)
-                    if (!Return_s.ContainsKey(key))
-                    {
-                        Return_s.Add(key, new List<float>());
-                    }
 
+                    // on ajoute G à Returns(s, a)
+                    if (!Return_s.ContainsKey(key)) Return_s.Add(key, new List<float>());
                     Return_s[key].Add(G);
 
                     // on ajoute la moyenne des Returns(s, a) dans Q(s,a)
-                    if (!Q_s.ContainsKey(key))
-                    {
-                        Q_s.Add(key, 0);
-                    }
+                    if (!Q_s.ContainsKey(key)) Q_s.Add(key, 0);
                     Q_s[key] = Return_s[key].Average();
+
                     // pour toute les actions possibles de l'état on ajoute l'action qui a la meilleure moyenne
 
                     // argmax
                     float max = -INFINITY;
-                    int act = 0;
+                    int act = -1;
                     foreach (var action in episode[i].Item1.PossibleActions)
                     {
-                        if (!Q_s.ContainsKey(key))
+                        var tmpKey = (episode[i].Item1, action);
+                        if (!Q_s.ContainsKey(tmpKey)) Q_s.Add(tmpKey, 0);
+
+                        if (Q_s[tmpKey] > max)
                         {
-                            Q_s.Add(key, 0);
-                        }
-                        if (Q_s[(episode[i].Item1, action)] > max)
-                        {
-                            max = Q_s[(episode[i].Item1, action)];
+                            max = Q_s[tmpKey];
                             act = action;
                         }
                     }
+
                     if (!Policy.ContainsKey(episode[i].Item1))
                     {
                         if (episode[i].Item1.HasActions) AddNewStateToPolicy(episode[i].Item1);
@@ -132,29 +139,8 @@ public class MonteCarlo : MarkovBase
                 }
 
             }
-
         }
-    }
-
-    private void AddNewStateToPolicy(IState state)
-    {
-        if (!m_states.Contains(state)) m_states.Add(state);
-        if (!state.IsFinal)
-        {
-            int action = state.PossibleActions[Utils.RandomGenerator.RandomNumber(0, state.PossibleActions.Count)];
-            Policy.Add(state, action);
-        }
-    }
-
-
-    public override int Think(IState state)
-    {
 
         return (int)Policy[state];
-
     }
-
-
-
-
 }

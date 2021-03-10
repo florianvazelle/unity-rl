@@ -50,11 +50,7 @@ public class MarkovPolicy : MarkovBase
             foreach (var state in m_states.ToList())
             {
                 if (state.IsFinal) continue; // ne modifie pas v_s si état final
-                if (!v_s.ContainsKey(state))
-                {
-                    if (state.HasActions) AddNewStateToVS(state);
-                    else continue;
-                }
+                if (!v_s.ContainsKey(state)) AddNewStateToVS(state);
                 if (!policy.ContainsKey(state))
                 {
                     if (state.HasActions) AddNewStateToPolicy(state);
@@ -64,11 +60,7 @@ public class MarkovPolicy : MarkovBase
                 float tmp = v_s[state];
 
                 Cell reward = m_transition(state, (int)policy[state], out newState);
-                if (!v_s.ContainsKey(newState))
-                {
-                    if (newState.HasActions) AddNewStateToVS(newState);
-                    else continue;
-                }
+                if (!v_s.ContainsKey(newState)) AddNewStateToVS(newState);
                 float current = (reward.value + GAMMA * v_s[newState]);
                 if (state.Equals(newState)) current -= 1;
                 
@@ -102,15 +94,11 @@ public class MarkovPolicy : MarkovBase
 
             // argmax
             float max = -INFINITY;
-            int act = 0;
+            int act = -1;
             foreach (var action in state.PossibleActions)
             {  
                 Cell reward = m_transition(state, action, out newState);
-                if (!v_s.ContainsKey(newState))
-                {
-                    if (newState.HasActions) AddNewStateToVS(newState);
-                    else continue;
-                }
+                if (!v_s.ContainsKey(newState)) AddNewStateToVS(newState);
                 float current = (reward.value + GAMMA * v_s[newState]);
                 if (state.Equals(newState)) current -= 1;
                 if (current > max) 
