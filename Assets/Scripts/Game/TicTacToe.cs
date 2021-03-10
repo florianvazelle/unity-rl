@@ -178,7 +178,7 @@ public class TicTacToe : MonoBehaviour
 
     void Render()
     {   
-        for(int i = 0 ; i < 8 ; i++){
+        for(int i = 0 ; i < 9 ; i++){
             SpawnTile(i % 3, i / 3, gameState.board[i]);
         }
     }
