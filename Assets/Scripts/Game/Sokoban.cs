@@ -110,8 +110,8 @@ public class Sokoban : MonoBehaviour
 
                 // C'est un coup valid si le joueur n'est pas allé sur un mur
                 bool isValidMove = (!walls.Contains(tmp)) && isValidBoxMove;
-                
-                if (isValidMove) PossibleActions.Add(action);
+
+                if (isValidMove && area.ContainsKey(tmp)) PossibleActions.Add(action);
             }
         }
     }
@@ -142,6 +142,21 @@ public class Sokoban : MonoBehaviour
     //     1, 3, 4, 2, 0, 0, 1, 1, 
     //     1, 1, 1, 0, 0, 0, 1, 1, 
     //     1, 1, 1, 1, 1, 1, 1, 1, 
+    // };
+
+    // public readonly static int WIDTH = 3, HEIGHT = 6;
+    // private readonly static List<int> grid = new List<int>() {
+    //     1, 1, 1, 1, 1, 1, 
+    //     1, 4, 0, 2, 3, 1,
+    //     1, 1, 1, 1, 1, 1, 
+    // };
+
+    // public readonly static int WIDTH = 4, HEIGHT = 6;
+    // private readonly static List<int> grid = new List<int>() {
+    //     1, 1, 1, 1, 1, 1, 
+    //     1, 4, 0, 0, 0, 1,
+    //     1, 0, 0, 2, 3, 1,
+    //     1, 1, 1, 1, 1, 1, 
     // };
 
     // Easy test with multiple box
@@ -178,7 +193,7 @@ public class Sokoban : MonoBehaviour
     // Markov
     private List<IState> states;
     private readonly static List<int> actions = new List<int>() { (int)Actions.UP, (int)Actions.LEFT, (int)Actions.DOWN, (int)Actions.RIGHT };
-    private MarkovValue markovIA;
+    private QLearning markovIA;
 
     // Debug
     private static Utils.Logger logger = new Utils.Logger("GridWorld");
@@ -232,7 +247,7 @@ public class Sokoban : MonoBehaviour
             initialState
         };
 
-        markovIA = new MarkovValue(states, actions, Play);
+        markovIA = new QLearning(states, actions, Play);
 
         //
         // Debug
@@ -310,10 +325,10 @@ public class Sokoban : MonoBehaviour
         }
 
         // return the cell data
-        if (goals.Contains(movedBox))
-        {
-            return new Cell { value = 10 };
-        }
+        // if (goals.Contains(movedBox))
+        // {
+        //     return new Cell { value = 10 };
+        // }
 
         return area[tmp]; 
     }
