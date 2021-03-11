@@ -130,6 +130,8 @@ public class TicTacToe : MonoBehaviour
     // Unity
     public Button yourButton;
     public Sprite tileSprite;
+    public Text initText;
+    public Text thinkText;
 
     // Markov
     private List<IState> states;
@@ -153,7 +155,9 @@ public class TicTacToe : MonoBehaviour
 
         Render();
 
+        var startTime = DateTime.Now;
         markovIA = new MonteCarlo(states, actions, Play);
+        initText.text = (DateTime.Now - startTime).Milliseconds.ToString("f6");
 
         //
         // Debug
@@ -197,7 +201,9 @@ public class TicTacToe : MonoBehaviour
         try {
             IState iGameState = new State(board, currentPlayer);
 
+            var startTime = DateTime.Now;
             int act = markovIA.Think(iGameState);
+            thinkText.text = (DateTime.Now - startTime).Milliseconds.ToString("f6");
             Debug.Log(act);
 
             // move player
