@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using UnityEngine;
 
 public class MonteCarlo : Base
@@ -136,33 +137,41 @@ public class MonteCarlo : Base
                         else break;
                     }
                     Policy[episode[i].Item1] = act;
+
                 }
 
             }
-            
-                // argmax
+            /*
+            // argmax
+            foreach (var s in m_states)
+            {
                 float max = -INFINITY;
                 int act = -1;
-            foreach (var action in state.PossibleActions)
-            {
-                Cell reward = m_transition(state, action, out newState);
-                if (!Q_s.ContainsKey(newState))
+                foreach (var action in s.PossibleActions)
                 {
-                    if (newState.HasActions) AddNewStateToVS(newState);
-                    else continue;
-                }
 
-                float current = (reward.value + GAMMA * Q_s[newState]);
-                if (state.Equals(newState)) current -= 1;
-                if (current > max)
-                {
-                    max = current;
-                    act = action;
+                    if (!Q_s.ContainsKey((s, action)))
+                    {
+                        Q_s.Add((s, action),0);
+                       
+                    }
+
+                    if (Q_s[(s,action)] > max)
+                    {
+                        max = Q_s[(s, action)];
+                        act = action;
+                    }
                 }
+                if (!Policy.ContainsKey(s))
+                {
+                    if (s.HasActions) AddNewStateToPolicy(s);
+                    else break;
+                }
+                Policy[s] = act;
             }
-            
+            */
         }
-        //return act;
+
         return (int)Policy[state];
     }
 
@@ -208,39 +217,39 @@ public class MonteCarlo : Base
                 // G = gamma * G + R(t+1) (reward de l'itération suivante) (on va de la fin au debut) (la derniére en premmier)
                 G = GAMMA * G + episode[i].Item3;
 
-                    var key = (episode[i].Item1, episode[i].Item2);
+                var key = (episode[i].Item1, episode[i].Item2);
 
-                    // on ajoute G à Returns(s, a)
-                    if (!Return_s.ContainsKey(key)) Return_s.Add(key, new List<float>());
-                    Return_s[key].Add(G);
+                // on ajoute G à Returns(s, a)
+                if (!Return_s.ContainsKey(key)) Return_s.Add(key, new List<float>());
+                Return_s[key].Add(G);
 
-                    // on ajoute la moyenne des Returns(s, a) dans Q(s,a)
-                    if (!Q_s.ContainsKey(key)) Q_s.Add(key, 0);
-                    Q_s[key] = Return_s[key].Average();
+                // on ajoute la moyenne des Returns(s, a) dans Q(s,a)
+                if (!Q_s.ContainsKey(key)) Q_s.Add(key, 0);
+                Q_s[key] = Return_s[key].Average();
 
-                    // pour toute les actions possibles de l'état on ajoute l'action qui a la meilleure moyenne
+                // pour toute les actions possibles de l'état on ajoute l'action qui a la meilleure moyenne
 
-                    // argmax
-                    float max = -INFINITY;
-                    int act = -1;
-                    foreach (var action in episode[i].Item1.PossibleActions)
+                // argmax
+                float max = -INFINITY;
+                int act = -1;
+                foreach (var action in episode[i].Item1.PossibleActions)
+                {
+                    var tmpKey = (episode[i].Item1, action);
+                    if (!Q_s.ContainsKey(tmpKey)) Q_s.Add(tmpKey, 0);
+
+                    if (Q_s[tmpKey] > max)
                     {
-                        var tmpKey = (episode[i].Item1, action);
-                        if (!Q_s.ContainsKey(tmpKey)) Q_s.Add(tmpKey, 0);
-
-                        if (Q_s[tmpKey] > max)
-                        {
-                            max = Q_s[tmpKey];
-                            act = action;
-                        }
+                        max = Q_s[tmpKey];
+                        act = action;
                     }
+                }
 
-                    if (!Policy.ContainsKey(episode[i].Item1))
-                    {
-                        if (episode[i].Item1.HasActions) AddNewStateToPolicy(episode[i].Item1);
-                        else break;
-                    }
-                    Policy[episode[i].Item1] = act;
+                if (!Policy.ContainsKey(episode[i].Item1))
+                {
+                    if (episode[i].Item1.HasActions) AddNewStateToPolicy(episode[i].Item1);
+                    else break;
+                }
+                Policy[episode[i].Item1] = act;
 
             }
         }
