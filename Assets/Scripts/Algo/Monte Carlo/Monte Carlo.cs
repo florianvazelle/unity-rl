@@ -31,8 +31,12 @@ public class MonteCarlo : Base
     // -> initialiser à vide
     Dictionary<(IState, int), List<float>> Return_s;
 
-    public MonteCarlo(List<IState> states, List<int> actions, ConvertMethod T) : base(states, actions, T)
+    bool firstVisit, onPolicy;
+
+    public MonteCarlo(List<IState> states, List<int> actions, ConvertMethod T, bool firstVisit = true, bool onPolicy = true) : base(states, actions, T)
     {
+        firstVisit = firstVisit;
+        onPolicy = onPolicy;
         // Pour chaque état, initialiser la politique avec une action random
         // (Comme bcp de possibilité, un seul élément dans le dictionnaire)
 
@@ -97,12 +101,16 @@ public class MonteCarlo : Base
 
                 // Si on est pas deja passé par cet état
                 bool isAppear = false;
-                for (int j = 0; j < i; j++)
+
+                if (firstVisit)
                 {
-                    if (episode[j].Item1.Equals(episode[i].Item1) && episode[j].Item2 == episode[i].Item2) isAppear = true;
+                    for (int j = 0; j < i; j++)
+                    {
+                        if (episode[j].Item1.Equals(episode[i].Item1) && episode[j].Item2 == episode[i].Item2) isAppear = true;
+                    }
                 }
 
-                if (!isAppear)
+                if ((!isAppear && firstVisit) || !firstVisit)
                 {
                     var key = (episode[i].Item1, episode[i].Item2);
 
@@ -117,140 +125,62 @@ public class MonteCarlo : Base
                     // pour toute les actions possibles de l'état on ajoute l'action qui a la meilleure moyenne
 
                     // argmax
+                    if (onPolicy)
+                    {
+                        float max = -INFINITY;
+                        int act = -1;
+                        foreach (var action in episode[i].Item1.PossibleActions)
+                        {
+                            var tmpKey = (episode[i].Item1, action);
+                            if (!Q_s.ContainsKey(tmpKey)) Q_s.Add(tmpKey, 0);
+
+                            if (Q_s[tmpKey] > max)
+                            {
+                                max = Q_s[tmpKey];
+                                act = action;
+                            }
+                        }
+
+                        if (!Policy.ContainsKey(episode[i].Item1))
+                        {
+                            if (episode[i].Item1.HasActions) AddNewStateToPolicy(episode[i].Item1);
+                            else break;
+                        }
+                        Policy[episode[i].Item1] = act;
+                    }
+
+                }
+
+            }
+            // argmax
+            if (!onPolicy)
+            {
+                foreach (var s in m_states)
+                {
                     float max = -INFINITY;
                     int act = -1;
-                    foreach (var action in episode[i].Item1.PossibleActions)
+                    foreach (var action in s.PossibleActions)
                     {
-                        var tmpKey = (episode[i].Item1, action);
-                        if (!Q_s.ContainsKey(tmpKey)) Q_s.Add(tmpKey, 0);
 
-                        if (Q_s[tmpKey] > max)
+                        if (!Q_s.ContainsKey((s, action)))
                         {
-                            max = Q_s[tmpKey];
+                            Q_s.Add((s, action),0);
+                        
+                        }
+
+                        if (Q_s[(s,action)] > max)
+                        {
+                            max = Q_s[(s, action)];
                             act = action;
                         }
                     }
-
-                    if (!Policy.ContainsKey(episode[i].Item1))
+                    if (!Policy.ContainsKey(s))
                     {
-                        if (episode[i].Item1.HasActions) AddNewStateToPolicy(episode[i].Item1);
+                        if (s.HasActions) AddNewStateToPolicy(s);
                         else break;
                     }
-                    Policy[episode[i].Item1] = act;
-
+                    Policy[s] = act;
                 }
-
-            }
-            /*
-            // argmax
-            foreach (var s in m_states)
-            {
-                float max = -INFINITY;
-                int act = -1;
-                foreach (var action in s.PossibleActions)
-                {
-
-                    if (!Q_s.ContainsKey((s, action)))
-                    {
-                        Q_s.Add((s, action),0);
-                       
-                    }
-
-                    if (Q_s[(s,action)] > max)
-                    {
-                        max = Q_s[(s, action)];
-                        act = action;
-                    }
-                }
-                if (!Policy.ContainsKey(s))
-                {
-                    if (s.HasActions) AddNewStateToPolicy(s);
-                    else break;
-                }
-                Policy[s] = act;
-            }
-            */
-        }
-
-        return (int)Policy[state];
-    }
-
-    public int ThinkEV(IState state)
-    {
-        if (state.IsFinal) return 0;
-
-        IState newState;
-        // Loop forever (for each episode or game)
-        for (int t = 0; t < 200; t++)
-        {
-            // start from a random state
-            IState s0 = state;
-            int a0 = s0.PossibleActions[0];
-
-            // creation d'une liste de (State Action Reward)
-            List<(IState, int, int)> episode = new List<(IState, int, int)>();
-            while (true)
-            {
-                // generate random game until the end
-                // apply transition method on S0 & A0
-                // add An, Sn, Rn à la liste 
-                Cell reward = m_transition(s0, a0, out newState);
-                episode.Add((s0, a0, reward.value));
-
-                if (!Policy.ContainsKey(newState))
-                {
-                    if (newState.HasActions) AddNewStateToPolicy(newState);
-                    else break;
-                }
-
-                if (newState.IsFinal) break;
-
-                s0 = newState;
-                a0 = Policy[newState];
-            }
-
-            float G = 0;
-
-            // Loop for each step (on remonte les infos qu'on a obtenue (reward)) (on commence par l'avant derniére étape)
-            for (int i = episode.Count - 1; i >= 0; i--)
-            {
-                // G = gamma * G + R(t+1) (reward de l'itération suivante) (on va de la fin au debut) (la derniére en premmier)
-                G = GAMMA * G + episode[i].Item3;
-
-                var key = (episode[i].Item1, episode[i].Item2);
-
-                // on ajoute G à Returns(s, a)
-                if (!Return_s.ContainsKey(key)) Return_s.Add(key, new List<float>());
-                Return_s[key].Add(G);
-
-                // on ajoute la moyenne des Returns(s, a) dans Q(s,a)
-                if (!Q_s.ContainsKey(key)) Q_s.Add(key, 0);
-                Q_s[key] = Return_s[key].Average();
-
-                // pour toute les actions possibles de l'état on ajoute l'action qui a la meilleure moyenne
-
-                // argmax
-                float max = -INFINITY;
-                int act = -1;
-                foreach (var action in episode[i].Item1.PossibleActions)
-                {
-                    var tmpKey = (episode[i].Item1, action);
-                    if (!Q_s.ContainsKey(tmpKey)) Q_s.Add(tmpKey, 0);
-
-                    if (Q_s[tmpKey] > max)
-                    {
-                        max = Q_s[tmpKey];
-                        act = action;
-                    }
-                }
-
-                if (!Policy.ContainsKey(episode[i].Item1))
-                {
-                    if (episode[i].Item1.HasActions) AddNewStateToPolicy(episode[i].Item1);
-                    else break;
-                }
-                Policy[episode[i].Item1] = act;
-
             }
         }
 
