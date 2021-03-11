@@ -3,15 +3,9 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-/**
- * Infos :
- * - L'algorithme SARSA est on-policy : la politique apprise est la même que celle utilisée pour faire les choix des actions à exécuter. 
- */
-public class SARSA : TemporalDifference {
+public class QLearning : TemporalDifference { 
 
-    protected const float GAMMA = 0.65f;
-
-    public SARSA(List<IState> states, List<int> actions, ConvertMethod transition) : base(states, actions, transition)
+    public QLearning(List<IState> states, List<int> actions, ConvertMethod transition) : base(states, actions, transition)
     {
         for (int t = 0; t < EPOCHS; t++)
         {
@@ -22,10 +16,9 @@ public class SARSA : TemporalDifference {
             {
                 IState sprime;
                 int r = m_transition(s, a, out sprime).value;
-                int aprime = GetGreedyAction(s);
 
-                if (!q.ContainsKey((sprime, aprime))) AddNewStateToQ(sprime, aprime);
-
+                int aprime = ArgMaxAction(sprime);
+                
                 q[(s, a)] = q[(s, a)] + ALPHA * (r + GAMMA * q[(sprime, aprime)] - q[(s, a)]);
                 s = sprime;
                 a = aprime;
