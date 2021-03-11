@@ -150,39 +150,38 @@ public class Sokoban : MonoBehaviour
     //     1, 4, 0, 2, 3, 1,
     //     1, 1, 1, 1, 1, 1, 
     // };
-
-    // public readonly static int WIDTH = 4, HEIGHT = 6;
-    // private readonly static List<int> grid = new List<int>() {
-    //     1, 1, 1, 1, 1, 1, 
+    //public readonly static int WIDTH = 4, HEIGHT = 6;
+    //private readonly static List<int> grid = new List<int>() {
+    //     1, 1, 1, 1, 1, 1,
     //     1, 4, 0, 0, 0, 1,
     //     1, 0, 0, 2, 3, 1,
-    //     1, 1, 1, 1, 1, 1, 
+    //     1, 1, 1, 1, 1, 1,
     // };
 
-    // Easy test with multiple box
-    // public readonly static int WIDTH = 6, HEIGHT = 6;
-    // private readonly static List<int> grid = new List<int>() {
-    //     1, 1, 1, 1, 1, 1, 
-    //     1, 4, 0, 0, 0, 1,
-    //     1, 0, 0, 2, 3, 1,
-    //     1, 0, 0, 2, 3, 1,
-    //     1, 0, 0, 2, 3, 1,
-    //     1, 1, 1, 1, 1, 1, 
-    // };
 
-    // Medium test with logic
-    public readonly static int WIDTH = 9, HEIGHT = 6;
+    //easy test with multiple box
+    public readonly static int WIDTH = 6, HEIGHT = 6;
     private readonly static List<int> grid = new List<int>() {
-        1, 1, 1, 1, 1, 1, 
+        1, 1, 1, 1, 1, 1,
         1, 4, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 1,
-        1, 0, 0, 1, 3, 1,
-        1, 1, 2, 1, 1, 1,
-        1, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 
+        1, 0, 0, 2, 3, 1,
+        1, 0, 0, 2, 3, 1,
+        1, 0, 0, 2, 3, 1,
+        1, 1, 1, 1, 1, 1,
     };
+    // Medium test with logic
+    //public readonly static int WIDTH = 9, HEIGHT = 6;
+    //private readonly static List<int> grid = new List<int>() {
+    //    1, 1, 1, 1, 1, 1, 
+    //    1, 4, 0, 0, 0, 1,
+    //    1, 0, 0, 0, 0, 1,
+    //    1, 0, 0, 1, 3, 1,
+    //    1, 1, 2, 1, 1, 1,
+    //    1, 0, 0, 0, 0, 1,
+    //    1, 0, 0, 0, 0, 1,
+    //    1, 0, 0, 0, 0, 1,
+    //    1, 1, 1, 1, 1, 1, 
+    //};
     private static Dictionary<Vector2, Cell> area;
 
     // Unity
@@ -195,7 +194,7 @@ public class Sokoban : MonoBehaviour
     // Markov
     private List<IState> states;
     private readonly static List<int> actions = new List<int>() { (int)Actions.UP, (int)Actions.LEFT, (int)Actions.DOWN, (int)Actions.RIGHT };
-    private QLearning markovIA;
+    private MonteCarlo markovIA;
 
     // Debug
     private static Utils.Logger logger = new Utils.Logger("GridWorld");
@@ -250,7 +249,7 @@ public class Sokoban : MonoBehaviour
         };
 
         var startTime = DateTime.Now;
-        markovIA = new QLearning(states, actions, Play);
+        markovIA = new MonteCarlo(states, actions, Play);
         initText.text = (DateTime.Now - startTime).Milliseconds.ToString("f6");
 
         //
@@ -330,11 +329,11 @@ public class Sokoban : MonoBehaviour
             return new Cell { value = 1000 };
         }
 
-        // return the cell data
-        // if (goals.Contains(movedBox))
-        // {
-        //     return new Cell { value = 10 };
-        // }
+        //return the cell data
+        if (goals.Contains(movedBox))
+        {
+            return new Cell { value = 10 };
+        }
 
         return area[tmp]; 
     }

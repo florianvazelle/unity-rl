@@ -147,7 +147,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 381938783}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f5768e67f5ee4a8a78d47c3e62d6af0b, type: 3}
   m_Name: 
@@ -184,13 +184,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 381938783}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 88b31fc2aebf36e0ea815ba1a04f26ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   yourButton: {fileID: 2057850698}
-  tileSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 3}
+  tileSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   arrowUp: {fileID: 4400419926977278709, guid: f090911ef423dca18b5741b2002df2e0, type: 3}
   arrowLeft: {fileID: -7015129729083658203, guid: f090911ef423dca18b5741b2002df2e0,
     type: 3}
@@ -213,7 +213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   yourButton: {fileID: 2057850698}
-  tileSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 3}
+  tileSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   arrowUp: {fileID: 4400419926977278709, guid: f090911ef423dca18b5741b2002df2e0, type: 3}
   arrowLeft: {fileID: -7015129729083658203, guid: f090911ef423dca18b5741b2002df2e0,
     type: 3}
