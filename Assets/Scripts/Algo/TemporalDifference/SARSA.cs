@@ -24,6 +24,7 @@ public class SARSA : TemporalDifference {
                 int r = m_transition(s, a, out sprime).value;
                 int aprime = GetGreedyAction(s);
 
+                if (!q.ContainsKey((s, a))) AddNewStateToQ(s, a);
                 if (!q.ContainsKey((sprime, aprime))) AddNewStateToQ(sprime, aprime);
 
                 q[(s, a)] = q[(s, a)] + ALPHA * (r + GAMMA * q[(sprime, aprime)] - q[(s, a)]);
