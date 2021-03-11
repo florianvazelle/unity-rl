@@ -189,6 +189,8 @@ public class Sokoban : MonoBehaviour
     private GameObject goPlayer;
     public Button yourButton;
     public Sprite tileSprite, arrowUp, arrowLeft, arrowDown, arrowRight;
+    public Text initText;
+    public Text thinkText;
 
     // Markov
     private List<IState> states;
@@ -247,7 +249,9 @@ public class Sokoban : MonoBehaviour
             initialState
         };
 
+        var startTime = DateTime.Now;
         markovIA = new QLearning(states, actions, Play);
+        initText.text = (DateTime.Now - startTime).Milliseconds.ToString("f6");
 
         //
         // Debug
@@ -259,7 +263,9 @@ public class Sokoban : MonoBehaviour
         IState currentIState = new State(player, boxes);
 
         // try {
+            var startTime = DateTime.Now;
             int act = markovIA.Think(currentIState);
+            thinkText.text = (DateTime.Now - startTime).Milliseconds.ToString("f6");
             Debug.Log(act);
 
             // move player

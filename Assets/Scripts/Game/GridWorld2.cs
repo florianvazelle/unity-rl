@@ -74,6 +74,8 @@ public class GridWorld2 : MonoBehaviour
     private GameObject goPlayer, goGoal;
     public Button yourButton;
     public Sprite tileSprite, arrowUp, arrowLeft, arrowDown, arrowRight;
+    public Text initText;
+    public Text thinkText;
 
     // Markov
     private List<IState> states;
@@ -150,7 +152,9 @@ public class GridWorld2 : MonoBehaviour
             }
         }
 
+        var startTime = DateTime.Now;
         markovIA = new MarkovValue(states, actions, Play);
+        initText.text = (DateTime.Now - startTime).Milliseconds.ToString("f6");
 
         // foreach(var state in states)
         // {
@@ -172,7 +176,9 @@ public class GridWorld2 : MonoBehaviour
 
         try
         {
+            var startTime = DateTime.Now;
             int act = markovIA.Think(currentState);
+            thinkText.text = (DateTime.Now - startTime).Milliseconds.ToString("f6");
 
             // move player
             Play(currentState, act, out currentState);
