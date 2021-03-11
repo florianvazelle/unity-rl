@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class MonteCarlo : Base
 {
+    protected const float MAX_DEPTH = 100; 
+
     // Pi(s) => dictionnaire de Istate (clef = Istate, value = int "action associée")
     public Dictionary<IState, int> Policy;
 
@@ -71,7 +73,7 @@ public class MonteCarlo : Base
 
             // creation d'une liste de (State Action Reward)
             List<(IState, int, int)> episode = new List<(IState, int, int)>();
-            while (true)
+            for (int depth = 0; depth < MAX_DEPTH; depth++)
             {
                 // generate random game until the end
                 // apply transition method on S0 & A0
