@@ -11,65 +11,51 @@ public class TemporalDifference : Base {
     protected const float MAX_DEPTH = 100; 
     protected const float EPOCHS = 10000; 
 
-    protected Dictionary<(IState, int), float> q;
+    protected Dictionary<(IState, int), float> Q_sa;
 
-    public TemporalDifference(List<IState> states, List<int> actions, ConvertMethod transition) : base(states, actions, transition)
-    {
-        q = new Dictionary<(IState, int), float>();
-        foreach (var state in m_states.ToList())
-        {
-            foreach (var action in state.PossibleActions) 
-            {
+    public override void Init() {
+        Q_sa = new Dictionary<(IState, int), float>();
+
+        foreach (var state in States.ToList()) {
+            foreach (var action in state.PossibleActions) {
                 AddNewStateToQ(state, action);
             }
         }
     }
 
-    /**
-     * Epsilon Greedy
-     */ 
-    protected int GetGreedyAction(IState state)
-    {
+    // Epsilon Greedy
+    protected int GetGreedyAction(IState state) {
         int action = -1;
         float p = Utils.RandomGenerator.RandomFloat(0, 1);
-        if (p < 0.1)
-        {
+        if (p < 0.1) {
             // random action
             action = state.PossibleActions[Utils.RandomGenerator.RandomNumber(0, state.PossibleActions.Count)];
-        } 
-        else 
-        {   
+        } else {   
             action = ArgMaxAction(state);
         }
         
         return action;
     }
 
-    //
-    // Helpers
-    //
-
-    protected void AddNewStateToQ(IState state, int action)
-    {
-        if (!m_states.Contains(state)) m_states.Add(state);
+    protected void AddNewStateToQ(IState state, int action) {
+        if (!States.Contains(state)) States.Add(state);
         float value = Utils.RandomGenerator.RandomFloat(0, 1);
-        q.Add((state, action), value);
-        if (state.IsFinal) q[(state, action)] = 0;
+        Q_sa.Add((state, action), value);
+        if (state.IsFinal) Q_sa[(state, action)] = 0;
     }
 
-    protected int ArgMaxAction(IState state)
-    {
+    protected int ArgMaxAction(IState state) {
         float max = -INFINITY;
         int bestAction = -1;
-        foreach (var act in state.PossibleActions)
-        {
-            if (!q.ContainsKey((state, act))) AddNewStateToQ(state, act);
-            if (q[(state, act)] > max)
-            {
-                max = q[(state, act)];
+        
+        foreach (var act in state.PossibleActions) {
+            if (!Q_sa.ContainsKey((state, act))) AddNewStateToQ(state, act);
+            if (Q_sa[(state, act)] > max) {
+                max = Q_sa[(state, act)];
                 bestAction = act;
             }
         }
+
         return bestAction;
     }
 }

@@ -11,23 +11,25 @@ public class SARSA : TemporalDifference {
 
     protected const float GAMMA = 0.65f;
 
-    public SARSA(List<IState> states, List<int> actions, ConvertMethod transition) : base(states, actions, transition)
-    {
-        for (int t = 0; t < EPOCHS; t++)
-        {
-            IState s = states[0];
+    public override void Init() {
+        base.Init();
+
+        for (int t = 0; t < EPOCHS; t++) {
+        
+            IState s = States[0];
             int a = GetGreedyAction(s);
 
-            for (int depth = 0; depth < MAX_DEPTH; depth++)
-            {
+            for (int depth = 0; depth < MAX_DEPTH; depth++) {
                 IState sprime;
-                int r = m_transition(s, a, out sprime).value;
+                int r = Transition(s, a, out sprime).value;
                 int aprime = GetGreedyAction(s);
 
-                if (!q.ContainsKey((s, a))) AddNewStateToQ(s, a);
-                if (!q.ContainsKey((sprime, aprime))) AddNewStateToQ(sprime, aprime);
+                if (depth + 1 >= MAX_DEPTH) r = -1000;
 
-                q[(s, a)] = q[(s, a)] + ALPHA * (r + GAMMA * q[(sprime, aprime)] - q[(s, a)]);
+                if (!Q_sa.ContainsKey((s, a))) AddNewStateToQ(s, a);
+                if (!Q_sa.ContainsKey((sprime, aprime))) AddNewStateToQ(sprime, aprime);
+
+                Q_sa[(s, a)] = Q_sa[(s, a)] + ALPHA * (r + GAMMA * Q_sa[(sprime, aprime)] - Q_sa[(s, a)]);
                 s = sprime;
                 a = aprime;
                 
@@ -36,8 +38,7 @@ public class SARSA : TemporalDifference {
         }
     }
 
-    public override int Think(IState state)
-    {   
+    public override int Think(IState state) {   
         if (state.IsFinal) return 0;
         return ArgMaxAction(state);
     }
