@@ -7,8 +7,7 @@ using UnityEngine;
 
 public class MonteCarlo : TemporalDifference {
 
-    protected new const float ALPHA = 1f;
-    protected new const float EPOCHS = 1000; 
+    protected new const float EPOCHS = 2000; 
 
     private Dictionary<IState, int> policy;
     private Dictionary<(IState, int), List<float>> Return_s;
