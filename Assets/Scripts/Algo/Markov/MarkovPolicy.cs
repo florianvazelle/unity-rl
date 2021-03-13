@@ -14,9 +14,7 @@ public class MarkovPolicy : MarkovBase {
 
         policy = new Dictionary<IState, int>();
 
-        foreach (var state in States.ToList()) {
-            AddNewStateToPolicy(state);
-        }
+        foreach (var state in States) AddNewStateToPolicy(state);
 
         // train policy
         while (true) {
@@ -62,7 +60,6 @@ public class MarkovPolicy : MarkovBase {
     // Met à jour la stratégie, retourne vrai si la policy converge
     private bool PolicyImprovement() {
         bool isStable = true;
-        IState newState;
 
         foreach (var state in States.ToList()) {
             

@@ -7,11 +7,8 @@ using UnityEngine;
 
 public class MonteCarlo : TemporalDifference {
 
-    protected const float GAMMA = 0.9f; 
-    protected const float ALPHA = 1f;
-
-    protected const float MAX_DEPTH = 100; 
-    protected const float EPOCHS = 1000; 
+    protected new const float ALPHA = 1f;
+    protected new const float EPOCHS = 1000; 
 
     private Dictionary<IState, int> policy;
     private Dictionary<(IState, int), List<float>> Return_s;
@@ -32,7 +29,9 @@ public class MonteCarlo : TemporalDifference {
 
         Return_s = new Dictionary<(IState, int), List<float>>();
 
-        RandomPolicy();
+        // initialize policy with random action (like in MarkovPolicy)
+        policy = new Dictionary<IState, int>();
+        foreach (var state in States) AddNewStateToPolicy(state);
     }
 
 
@@ -123,16 +122,6 @@ public class MonteCarlo : TemporalDifference {
         }
 
         return (int)policy[state];
-    }
-
-    // -> initialisé à random
-    private void RandomPolicy() {
-        policy = new Dictionary<IState, int>();
-
-        foreach (var state in States) {
-            int action = state.PossibleActions[Utils.RandomGenerator.RandomNumber(0, state.PossibleActions.Count)];
-            policy.Add(state, action);
-        }
     }
 
     private void AddNewStateToPolicy(IState state) {

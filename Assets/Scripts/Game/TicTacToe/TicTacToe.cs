@@ -26,20 +26,19 @@ namespace TicTacToe {
             (int)Actions.BOTTOM_LEFT, (int)Actions.BOTTOM_MIDDLE, (int)Actions.BOTTOM_RIGHT
         };
 
-        public State gameState;
         private readonly static int empty = 0, player1 = 1, player2 = 2;
 
-        public TAlgo markovIA;
+        private IState gameState;
+        private TAlgo ia;
 
         public void Start() {  
             gameState = new State(player1);  // initial game
 
-            markovIA = new TAlgo();
-            markovIA.States = new List<IState>() { gameState };
-            markovIA.Actions = ACTIONS;
-            markovIA.Transition = Play;
+            ia = new TAlgo();
+            ia.States = new List<IState>() { gameState };
+            ia.Transition = Play;
 
-            markovIA.Init();
+            ia.Init();
 
             Render();
         }
@@ -58,29 +57,17 @@ namespace TicTacToe {
             if (Input.GetKeyDown("9")) action = 8;
 
             if (action != -1) {
-                IState currentIState = gameState;
-
-                if (!((State)currentIState).IsFinal) {
-                    // move player
-                    Play(currentIState, action, out currentIState);
-                    gameState = (State) currentIState;
-
+                if (!((State)gameState).IsFinal) {
+                    Play(gameState, action, out gameState);
                     Render();
                 }
             }
         }
 
         public void TaskOnClick() {
-            IState currentIState = gameState;
-
-            int act = markovIA.Think(currentIState);
-
-            // update game state
-            Play(currentIState, act, out currentIState);
-            gameState = (State) currentIState;
-
-            // update rendering
-            Render();
+            int act = ia.Think(gameState);
+            Play(gameState, act, out gameState); // update game state
+            Render(); // update rendering
         }
 
         public static Cell Play(IState iState, int action, out IState newIState) {
@@ -108,11 +95,11 @@ namespace TicTacToe {
             return new Cell { value = -1 }; 
         }
 
-        void Render() {
+        protected void Render() {
             Camera.main.transform.position = new Vector3(3 / 2, 3 / 2, -10);
 
             for(int i = 0 ; i < 9 ; i++){
-                int value = gameState.board[i];
+                int value = ((State) gameState).board[i];
                 Color color = (value == 0) ? new Color(1, 1, 1) : (value == 1) ? new Color(1, 0, 0) : new Color(0, 0, 1);
                 Utils.Render.SpawnTile(i % 3, i / 3, RL.instance.tileSprite, color);
             }

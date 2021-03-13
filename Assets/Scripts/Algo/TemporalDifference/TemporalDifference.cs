@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class TemporalDifference : Base {
 
-    protected const float GAMMA = 0.9f; 
+    protected new const float GAMMA = 0.9f; 
     protected const float ALPHA = 0.3f; // Learning rate
 
     protected const float MAX_DEPTH = 100; 

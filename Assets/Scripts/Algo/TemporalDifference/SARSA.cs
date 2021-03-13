@@ -9,7 +9,7 @@ using System.Collections.Generic;
  */
 public class SARSA : TemporalDifference {
 
-    protected const float GAMMA = 0.65f;
+    protected new const float GAMMA = 0.65f;
 
     public override void Init() {
         base.Init();

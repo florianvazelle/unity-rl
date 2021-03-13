@@ -10,23 +10,23 @@ public class RL : MonoBehaviour {
     private Rect windowRect = new Rect(0, 0, 500, 100);     // Rect window for ImGUI
     private long elapsedMs = -1;                            // To calculate how many time the method execute 
 
-    public enum Game { GridWorld, TicTacToe, Sokoban };
-    public enum Algo { MarkovPolicy, MarkovValue, MonteCarlo, SARSA, QLearning };
+    private enum Game { GridWorld, TicTacToe, Sokoban };
+    private enum Algo { MarkovPolicy, MarkovValue, MonteCarlo, SARSA, QLearning };
     public enum SokobanLevel { Easy, Medium, Hard };
 
-    public Game selectedGame, oldGame;
-    public Algo selectedAlgo, oldAlgo;
+    private Game selectedGame, oldGame;
+    private Algo selectedAlgo, oldAlgo;
     public SokobanLevel selectedSokobanLevel, oldSokobanLevel;
 
     public static RL instance = null;
 
-    public IGame game;
+    private IGame game;
     public bool mcES, mcOnPolicy, mcFirstVisit;
 
     public GameObject goPlayer;
-    public Button yourButton;
-    public Sprite tileSprite, arrowUp, arrowLeft, arrowDown, arrowRight;
-    public Button btn;
+    public Button playButton;
+    public Sprite tileSprite;
+    private Button btnComponent;
 
     public static RL GetInstance() {
         return instance;
@@ -49,39 +49,40 @@ public class RL : MonoBehaviour {
         mcOnPolicy = false;
         mcFirstVisit = false;
 
-        btn = yourButton.GetComponent<Button>();
+        btnComponent = playButton.GetComponent<Button>();
     }
 
     void Update() {
+        // Detect if a game or algo are change
         if (selectedGame != oldGame || selectedAlgo != oldAlgo || selectedSokobanLevel != oldSokobanLevel) {
             try {
-                btn.onClick.RemoveListener(game.TaskOnClick);
+                btnComponent.onClick.RemoveListener(game.TaskOnClick);
             } catch {
+                Debug.Log("No listener attach to the play button.");
             }
 
+            // update old values
             oldGame = selectedGame;
             oldAlgo = selectedAlgo;
             oldSokobanLevel = selectedSokobanLevel;
 
-            Base algoType = new MarkovPolicy();
-            if (selectedAlgo == Algo.MarkovValue) algoType = new MarkovValue();
+            // Select the RL algorithm 
+            Base algoType;
+            if (selectedAlgo == Algo.MarkovPolicy) algoType = new MarkovPolicy();
+            else if (selectedAlgo == Algo.MarkovValue) algoType = new MarkovValue();
             else if (selectedAlgo == Algo.MonteCarlo) algoType = new MonteCarlo();
             else if (selectedAlgo == Algo.SARSA) algoType = new SARSA();
-            else if (selectedAlgo == Algo.QLearning) algoType = new QLearning();
+            else algoType = new QLearning();
 
-            var type = typeof(GridWorld.GridWorld<>).MakeGenericType(algoType.GetType());
+            // Select the game
+            Type gameType;
+            if (selectedGame == Game.GridWorld) gameType = typeof(GridWorld.GridWorld<>);
+            else if (selectedGame == Game.TicTacToe) gameType = typeof(TicTacToe.TicTacToe<>);
+            else gameType = typeof(Sokoban.Sokoban<>);
+
+            // Create the game instance for the RL algorithm
+            var type = gameType.MakeGenericType(algoType.GetType());
             game = (IGame) Activator.CreateInstance(type);  
-
-            if (selectedGame == Game.TicTacToe) {
-                goPlayer.transform.position = new Vector3(50, 50, 0);
-                type = typeof(TicTacToe.TicTacToe<>).MakeGenericType(algoType.GetType());
-                game = (IGame) Activator.CreateInstance(type);
-            }
-
-            else if (selectedGame == Game.Sokoban) {
-                type = typeof(Sokoban.Sokoban<>).MakeGenericType(algoType.GetType());
-                game = (IGame) Activator.CreateInstance(type);
-            }
 
             // Clear the screen
             GameObject[] gos = GameObject.FindGameObjectsWithTag("Tile");
@@ -89,6 +90,8 @@ public class RL : MonoBehaviour {
                 var tile = go.GetComponent<SpriteRenderer>();
                 tile.color = new Color(0, 0, 0, 0);
             }
+            // Hide the player
+            goPlayer.transform.position = new Vector3(50, 50, 0);
 
             // Start the game
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -97,7 +100,7 @@ public class RL : MonoBehaviour {
             elapsedMs = watch.ElapsedMilliseconds;
 
             // Debug to move the game step by step
-		    btn.onClick.AddListener(game.TaskOnClick);
+		    btnComponent.onClick.AddListener(game.TaskOnClick);
         }
 
         game.Update();

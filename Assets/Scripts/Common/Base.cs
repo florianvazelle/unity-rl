@@ -11,7 +11,7 @@ public class Base {
     protected const float INFINITY = 1000000;
     
     public List<IState> States { get; set; }         // S : ensemble des états du MDP
-    public List<int> Actions { get; set; }           // A : ensemble des actions
+    // public List<int> Actions { get; set; }        // A : ensemble des actions
     public ConvertMethod Transition { get; set; }    // T : fonction de transition
 
     public virtual void Init() {   

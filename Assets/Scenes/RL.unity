@@ -242,24 +242,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72683758a33fffbd6b6c3040c8870b32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedGame: 0
-  oldGame: 0
-  selectedAlgo: 0
-  oldAlgo: 0
+  selectedSokobanLevel: 0
+  oldSokobanLevel: 0
   mcES: 0
   mcOnPolicy: 0
   mcFirstVisit: 0
   goPlayer: {fileID: 604736738}
-  yourButton: {fileID: 2026397839}
+  playButton: {fileID: 2026397839}
   tileSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  arrowUp: {fileID: 4400419926977278709, guid: f090911ef423dca18b5741b2002df2e0, type: 3}
-  arrowLeft: {fileID: -7015129729083658203, guid: f090911ef423dca18b5741b2002df2e0,
-    type: 3}
-  arrowDown: {fileID: 1078432722806360116, guid: f090911ef423dca18b5741b2002df2e0,
-    type: 3}
-  arrowRight: {fileID: 2937107722729227608, guid: f090911ef423dca18b5741b2002df2e0,
-    type: 3}
-  btn: {fileID: 0}
 --- !u!1 &604736738
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,10 +12,10 @@ namespace GridWorld {
 
         public readonly static List<int> ACTIONS = new List<int>() { (int)Actions.UP, (int)Actions.LEFT, (int)Actions.DOWN, (int)Actions.RIGHT };
         
-        public State gameState;
-        public static Level level;
+        private static Level level;
 
-        public TAlgo markovIA;
+        private IState gameState;
+        private TAlgo ia;
 
         public void Start() {  
             level = new Level(new List<int>() {
@@ -31,30 +31,16 @@ namespace GridWorld {
 
             gameState = new State(level);  // initial game
 
-            markovIA = new TAlgo();
-            markovIA.States = new List<IState>() { gameState };
-            markovIA.Actions = ACTIONS;
-            markovIA.Transition = Play;
+            ia = new TAlgo();
+            ia.States = new List<IState>() { gameState };
+            ia.Transition = Play;
 
-            markovIA.Init();
+            ia.Init();
 
             Render();
         }
 
         public void Update() {}
-
-        public void TaskOnClick() {
-            IState currentIState = gameState;
-
-            int act = markovIA.Think(currentIState);
-
-            // update game state
-            Play(currentIState, act, out currentIState);
-            gameState = (State) currentIState;
-
-            // update rendering
-            Render();
-        }
 
         public static Vector2 PlayAction(int action) {
             Vector2 move = new Vector2(0, 0);
@@ -82,6 +68,12 @@ namespace GridWorld {
             return move;
         }
 
+        public void TaskOnClick() {
+            int act = ia.Think(gameState);
+            Play(gameState, act, out gameState); // update game state
+            Render(); // update rendering
+        }
+
         public static Cell Play(IState iState, int action, out IState newIState) {
             // execute action
             State state = (State)iState;
@@ -100,10 +92,10 @@ namespace GridWorld {
             return new Cell { value = reward }; 
         }
 
-        void Render() {   
+        protected void Render() {   
             Camera.main.transform.position = new Vector3(level.WIDTH / 2, level.HEIGHT / 2, -10);
 
-            RL.instance.goPlayer.transform.position = gameState.player;
+            RL.instance.goPlayer.transform.position = ((State) gameState).player;
 
             for(int y = 0; y < level.HEIGHT; y++) {
                 for(int x = 0; x < level.WIDTH; x++) {
@@ -117,40 +109,5 @@ namespace GridWorld {
                 }
             }
         }
-
-        // private void SpawnArrow(int x, int y, int action) {
-
-        //     Sprite sprite = tileSprite;
-        //     switch(action) {
-        //         case (int)Actions.UP:
-        //             sprite = arrowUp;
-        //             break;
-        //         case (int)Actions.LEFT:
-        //             sprite = arrowLeft;
-        //             break;
-        //         case (int)Actions.DOWN:
-        //             sprite = arrowDown;
-        //             break;
-        //         case (int)Actions.RIGHT:
-        //             sprite = arrowRight;
-        //             break;
-        //     }
-
-        //     string name = x + ":" + y + "arrow";
-        //     GameObject g = GameObject.Find(name);
-        //     if (g == null) {
-        //         g = new GameObject(name);
-        //     }
-
-        //     g.transform.position = new Vector3(x, y);
-        //     g.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-
-        //     var tile = g.GetComponent<SpriteRenderer>();
-        //     if (tile == null) {
-        //         tile = g.AddComponent<SpriteRenderer>();
-        //     }
-
-        //     tile.sprite = sprite;
-        // }
     }
 }

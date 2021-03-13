@@ -13,10 +13,10 @@ namespace Sokoban {
 
         public readonly static List<int> ACTIONS = new List<int>() { (int)Actions.UP, (int)Actions.LEFT, (int)Actions.DOWN, (int)Actions.RIGHT };
 
-        public State gameState;
-        public Level level;
+        private Level level;
 
-        public TAlgo markovIA;
+        private IState gameState;
+        private TAlgo ia;
 
         public void Start() {   
             if (RL.instance.selectedSokobanLevel == RL.SokobanLevel.Easy)
@@ -50,30 +50,16 @@ namespace Sokoban {
             
             gameState = new State(level);  // initial game
 
-            markovIA = new TAlgo();
-            markovIA.States = new List<IState>() { gameState };
-            markovIA.Actions = ACTIONS;
-            markovIA.Transition = Play;
+            ia = new TAlgo();
+            ia.States = new List<IState>() { gameState };
+            ia.Transition = Play;
 
-            markovIA.Init();
+            ia.Init();
 
-            Render();
-        }   
-
-        public void Update() {}
-
-        public void TaskOnClick() {
-            IState currentIState = gameState;
-
-            int act = markovIA.Think(currentIState);
-
-            // update game state
-            Play(currentIState, act, out currentIState);
-            gameState = (State) currentIState;
-
-            // update rendering
             Render();
         }
+
+        public void Update() {}
 
         public static Vector2 PlayAction(int action) {
             Vector2 move = new Vector2(0, 0);
@@ -99,6 +85,12 @@ namespace Sokoban {
             }
 
             return move;
+        }
+
+        public void TaskOnClick() {
+            int act = ia.Think(gameState);
+            Play(gameState, act, out gameState); // update game state
+            Render(); // update rendering
         }
 
         public static Cell Play(IState iState, int action, out IState newIState) {
@@ -127,10 +119,10 @@ namespace Sokoban {
             return new Cell { value = -1 }; 
         }
 
-        void Render() {   
+        protected void Render() {   
             Camera.main.transform.position = new Vector3(level.WIDTH / 2, level.HEIGHT / 2, -10);
 
-            RL.instance.goPlayer.transform.position = gameState.player;
+            RL.instance.goPlayer.transform.position = ((State) gameState).player;
 
             for(int y = 0; y < level.HEIGHT; y++) {
                 for(int x = 0; x < level.WIDTH; x++) {
@@ -139,7 +131,7 @@ namespace Sokoban {
                     Color color = new Color(1, 1, 1);
                     if (level.walls.Contains(pos)) color = new Color(0, 0, 0);
                     if (level.goals.Contains(pos)) color = new Color(1, 0, 0);
-                    if (gameState.boxes.Contains(pos)) color = new Color(0.59f, 0.29f, 0.00f);
+                    if (((State) gameState).boxes.Contains(pos)) color = new Color(0.59f, 0.29f, 0.00f);
 
                     Utils.Render.SpawnTile(x, y, RL.instance.tileSprite, color);
                 }
