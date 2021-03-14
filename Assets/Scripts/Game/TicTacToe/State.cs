@@ -11,9 +11,9 @@ namespace TicTacToe {
         public readonly int[] board;
         public readonly int currentPlayer;
 
-        public bool IsFinal { get; set; }                   // To check if it's a final state (win)
-        public bool HasActions { get; set; }                // To check if we need to add the state to the policy
-        public List<int> PossibleActions { get; set; }      // List of all possible action on this state
+        public bool IsFinal { get; set; }
+        public bool HasActions { get; set; }
+        public List<int> Actions { get; set; }
         public int IsWin { get; set; }
         
         // To init the intial state
@@ -23,7 +23,7 @@ namespace TicTacToe {
             
             this.IsFinal = false;
             this.HasActions = false;
-            this.PossibleActions = new List<int>();
+            this.Actions = new List<int>();
 
             this.Update();
         }
@@ -39,12 +39,12 @@ namespace TicTacToe {
 
             this.IsFinal = false;
             this.HasActions = false;
-            this.PossibleActions = new List<int>();
+            this.Actions = new List<int>();
 
             this.Update();
         }
 
-        // To update IsFinal, HasActions and PossibleActions
+        // To update IsFinal, HasActions and Actions
         private void Update() {
             // Compute if is Win for a player
             IsWin = 0;
@@ -75,12 +75,12 @@ namespace TicTacToe {
             }
             
             // Compute if it is a final state
-            PossibleActions = new List<int>();
+            Actions = new List<int>();
             // regarde la liste des actions qu'il est possible de réaliser
             for(int i = 0 ; i < this.board.Length ; i++) {
-                if (this.board[i] == 0)  PossibleActions.Add(i);
+                if (this.board[i] == 0)  Actions.Add(i);
             }
-            HasActions = PossibleActions.Count > 0;
+            HasActions = Actions.Count > 0;
 
             // plus aucune possibilitée ou des deux joueurs a gagné
             IsFinal = ((!HasActions) || (IsWin != 0));

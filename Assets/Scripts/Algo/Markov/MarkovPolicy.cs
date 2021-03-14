@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using UnityEngine;
+using static Utils.RandomGenerator;
 
 public class MarkovPolicy : MarkovBase {
     
@@ -83,9 +84,9 @@ public class MarkovPolicy : MarkovBase {
     private void AddNewStateToPolicy(IState state) {
         if (!States.Contains(state)) States.Add(state);
         
-        // Intialise la stratégie avec des actions aléatoires pour chaque état possible.
+        // Intialise la stratégie avec des actions aléatoires pour chaque état possible
         if (!state.IsFinal) {
-            int action = state.PossibleActions[Utils.RandomGenerator.RandomNumber(0, state.PossibleActions.Count)];
+            int action = RandomChoice(state.Actions);
             policy.Add(state, action);
         }
     }
@@ -93,9 +94,9 @@ public class MarkovPolicy : MarkovBase {
     protected override void AddNewStateToVS(IState state) {
         if (!States.Contains(state)) States.Add(state);
 
-        // Intitialize V_s with a random number
-        float value = Utils.RandomGenerator.RandomFloat(0, 1);
+        // Intialise V_s avec un nombre aléatoire entre 0 et 1
+        float value = RandomFloat(0, 1);
         V_s.Add(state, value);
-        if (state.IsFinal) V_s[state] = 0; // Until if is a final state
+        if (state.IsFinal) V_s[state] = 0; // Sauf si c'est un état final
     }
 }

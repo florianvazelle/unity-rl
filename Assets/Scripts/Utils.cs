@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO; 
 using UnityEngine;
 
@@ -18,6 +20,11 @@ namespace Utils {
 
         static public float RandomFloat(float min, float max) {
             return min + ((float)_random.NextDouble()) * (max - min);
+        }
+
+        static public T RandomChoice<T>(List<T> list) {
+            int idx = RandomNumber(0, list.Count);
+            return list[idx];
         }
     }  
 

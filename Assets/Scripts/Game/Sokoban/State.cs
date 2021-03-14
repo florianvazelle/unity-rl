@@ -12,9 +12,9 @@ namespace Sokoban {
         public readonly List<Vector2> boxes;
         public static Level? level = null;
 
-        public bool IsFinal { get; set; }                   // To check if it's a final state (win)
-        public bool HasActions { get; set; }                // To check if we need to add the state to the policy
-        public List<int> PossibleActions { get; set; }      // List of all possible action on this state
+        public bool IsFinal { get; set; }
+        public bool HasActions { get; set; }
+        public List<int> Actions { get; set; }
         
         public static Level levelInstance {
             get {
@@ -34,7 +34,7 @@ namespace Sokoban {
             
             this.IsFinal = false;
             this.HasActions = false;
-            this.PossibleActions = new List<int>();
+            this.Actions = new List<int>();
 
             this.Update();
         }
@@ -45,12 +45,12 @@ namespace Sokoban {
 
             this.IsFinal = false;
             this.HasActions = false;
-            this.PossibleActions = new List<int>();
+            this.Actions = new List<int>();
 
             this.Update();
         }
 
-        // To update IsFinal, HasActions and PossibleActions
+        // To update IsFinal, HasActions and Actions
         private void Update() {
             var boxes = this.boxes;
 
@@ -73,7 +73,7 @@ namespace Sokoban {
                 // TODO : clamp value
 
                 // C'est un coup valid si le joueur n'est pas allé sur un mur
-                if ((!levelInstance.walls.Contains(playerMove)) && isValidBoxMove) PossibleActions.Add(action);
+                if ((!levelInstance.walls.Contains(playerMove)) && isValidBoxMove) Actions.Add(action);
             }
         }
 

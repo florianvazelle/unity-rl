@@ -1,8 +1,12 @@
 # Unity RL
 
-Unity RL is a Unity C# application to discover several reinforcement learning algorithms.
+Unity RL is a Unity C# application with multiple implementations of reinforcement learning algorithms on three mini-games. 
 
-## Implementations
+## Setup
+
+This project work on Unity 2019.4.14f1
+
+## Table of Contents
 
 ### Algorithms
 
@@ -17,12 +21,11 @@ Unity RL is a Unity C# application to discover several reinforcement learning al
   - [SARSA](https://github.com/florianvazelle/LIN_THENEVIN_VAZELLE_5ADJV_RL/blob/main/Assets/Scripts/Algo/TemporalDifference/SARSA.cs)
   - [QLearning](https://github.com/florianvazelle/LIN_THENEVIN_VAZELLE_5ADJV_RL/blob/main/Assets/Scripts/Algo/TemporalDifference/QLearning.cs)
 
-
 ### Games
 
-  - [Grid World](https://github.com/florianvazelle/LIN_THENEVIN_VAZELLE_5ADJV_RL/blob/main/Assets/Scripts/Game/GridWorld/GridWorld.cs)
-  - [Tic Tac Toe](https://github.com/florianvazelle/LIN_THENEVIN_VAZELLE_5ADJV_RL/blob/main/Assets/Scripts/Game/TicTacToe/TicTacToe.cs)
-  - [Sokoban](https://github.com/florianvazelle/LIN_THENEVIN_VAZELLE_5ADJV_RL/blob/main/Assets/Scripts/Game/Sokoban/Sokoban.cs)
+- [Grid World](https://github.com/florianvazelle/LIN_THENEVIN_VAZELLE_5ADJV_RL/blob/main/Assets/Scripts/Game/GridWorld/GridWorld.cs)
+- [Tic Tac Toe](https://github.com/florianvazelle/LIN_THENEVIN_VAZELLE_5ADJV_RL/blob/main/Assets/Scripts/Game/TicTacToe/TicTacToe.cs)
+- [Sokoban](https://github.com/florianvazelle/LIN_THENEVIN_VAZELLE_5ADJV_RL/blob/main/Assets/Scripts/Game/Sokoban/Sokoban.cs)
 
 ## Demos
 

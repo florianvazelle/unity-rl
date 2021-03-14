@@ -42,7 +42,7 @@ public class RL : MonoBehaviour {
         oldSokobanLevel = SokobanLevel.Easy;
 
         selectedGame = Game.GridWorld;
-        selectedAlgo = Algo.MarkovPolicy;
+        selectedAlgo = Algo.MarkovValue;
         selectedSokobanLevel = SokobanLevel.Easy;
 
         mcES = true;

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using static Utils.RandomGenerator;
 
 public class MarkovBase : Base {
 
@@ -12,6 +13,7 @@ public class MarkovBase : Base {
         foreach (var state in States.ToList()) V_s.Add(state, 0f);
     }
 
+    // Retourne le reward estimé pour un couple (état, action)
     protected float GetRewardForAction(IState state, int action, out IState newState) {
         Cell reward = Transition(state, action, out newState);
         if (!V_s.ContainsKey(newState)) AddNewStateToVS(newState);
@@ -22,21 +24,26 @@ public class MarkovBase : Base {
         return current;
     }
 
+    // Retourne l'action qui possède le meilleur reward
+    // Si il y a plusieurs action avec le même reward, on choisi aléatoirement parmis celle ci
     protected int ArgMaxAction(IState state) {
         IState newState;
         float max = -INFINITY;
-        int bestAction = -1;
+        List<int> idxList = new List<int>();
         
-        foreach (var action in state.PossibleActions) {
-            float current = GetRewardForAction(state, action, out newState);
+        for (int i = 0; i < state.Actions.Count; i++) {
+            float current = GetRewardForAction(state, state.Actions[i], out newState);
             
             if (current > max) {
+                idxList.Clear();
                 max = current;
-                bestAction = action;
+                idxList.Add(i);
+            } else if (current == max) {
+                idxList.Add(i);
             }
         }
 
-        return bestAction;
+        return state.Actions[RandomChoice(idxList)];
     }
 
     protected virtual void AddNewStateToVS(IState state) {

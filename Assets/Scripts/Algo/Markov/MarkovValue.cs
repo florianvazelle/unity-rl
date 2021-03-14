@@ -28,7 +28,7 @@ public class MarkovValue : MarkovBase {
                 float tmp = V_s[s];
 
                 float max = -INFINITY;
-                foreach (var action in s.PossibleActions) {  
+                foreach (var action in s.Actions) {  
                     float current = GetRewardForAction(s, action, out newState);
                     if (current > max) max = current;
                 }

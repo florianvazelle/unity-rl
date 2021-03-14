@@ -11,9 +11,9 @@ namespace GridWorld {
         public readonly Vector2 player;
         public static Level? level = null;
 
-        public bool IsFinal { get; set; }                   // To check if it's a final state (win)
-        public bool HasActions { get; set; }                // To check if we need to add the state to the policy
-        public List<int> PossibleActions { get; set; }      // List of all possible action on this state
+        public bool IsFinal { get; set; }
+        public bool HasActions { get; set; }
+        public List<int> Actions { get; set; }
         
         public static Level levelInstance {
             get {
@@ -32,7 +32,7 @@ namespace GridWorld {
             
             this.IsFinal = false;
             this.HasActions = false;
-            this.PossibleActions = new List<int>();
+            this.Actions = new List<int>();
 
             this.Update();
         }
@@ -42,12 +42,12 @@ namespace GridWorld {
 
             this.IsFinal = false;
             this.HasActions = false;
-            this.PossibleActions = new List<int>();
+            this.Actions = new List<int>();
 
             this.Update();
         }
 
-        // To update IsFinal, HasActions and PossibleActions
+        // To update IsFinal, HasActions and Actions
         private void Update() {
             IsFinal = (this.player == levelInstance.goal);
             HasActions = !levelInstance.walls.Contains(this.player);
@@ -57,7 +57,7 @@ namespace GridWorld {
                 Vector2 playerMove = this.player + move;
 
                 // C'est un coup valid si le joueur n'est pas allé sur un mur
-                if (!levelInstance.walls.Contains(playerMove)) PossibleActions.Add(action);
+                if (!levelInstance.walls.Contains(playerMove)) Actions.Add(action);
             }
         }
 

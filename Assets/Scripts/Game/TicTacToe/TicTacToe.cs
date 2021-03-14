@@ -29,16 +29,16 @@ namespace TicTacToe {
         private readonly static int empty = 0, player1 = 1, player2 = 2;
 
         private IState gameState;
-        private TAlgo ia;
+        private TAlgo agent;
 
         public void Start() {  
             gameState = new State(player1);  // initial game
 
-            ia = new TAlgo();
-            ia.States = new List<IState>() { gameState };
-            ia.Transition = Play;
+            agent = new TAlgo();
+            agent.States = new List<IState>() { gameState };
+            agent.Transition = Play;
 
-            ia.Init();
+            agent.Init();
 
             Render();
         }
@@ -65,7 +65,7 @@ namespace TicTacToe {
         }
 
         public void TaskOnClick() {
-            int act = ia.Think(gameState);
+            int act = agent.Think(gameState);
             Play(gameState, act, out gameState); // update game state
             Render(); // update rendering
         }

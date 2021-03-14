@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using UnityEngine;
+using static Utils.RandomGenerator;
 
 public class MonteCarlo : TemporalDifference {
 
@@ -43,7 +44,7 @@ public class MonteCarlo : TemporalDifference {
         for (int t = 0; t < EPOCHS; t++) {
             // start from a random state
             IState s0 = state;
-            int a0 = s0.PossibleActions[0];
+            int a0 = s0.Actions[0];
 
             // creation d'une liste de (State Action Reward)
             List<(IState, int, int)> episode = new List<(IState, int, int)>();
@@ -128,7 +129,7 @@ public class MonteCarlo : TemporalDifference {
         
         // Intialise la stratégie avec des actions aléatoires pour chaque état possible.
         if (!state.IsFinal) {
-            int action = state.PossibleActions[Utils.RandomGenerator.RandomNumber(0, state.PossibleActions.Count)];
+            int action = state.Actions[RandomNumber(0, state.Actions.Count)];
             policy.Add(state, action);
         }
     }

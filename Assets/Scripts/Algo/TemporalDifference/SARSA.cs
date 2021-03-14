@@ -3,10 +3,6 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-/**
- * Infos :
- * - L'algorithme SARSA est on-policy : la politique apprise est la même que celle utilisée pour faire les choix des actions à exécuter. 
- */
 public class SARSA : TemporalDifference {
 
     protected new const float GAMMA = 0.65f;

@@ -15,27 +15,25 @@ namespace GridWorld {
         private static Level level;
 
         private IState gameState;
-        private TAlgo ia;
+        private TAlgo agent;
 
         public void Start() {  
             level = new Level(new List<int>() {
-                0, 3, 0, 1, 0, 0, 0, 0, 
-                0, 1, 0, 0, 0, 0, 0, 0, 
-                0, 0, 1, 0, 0, 0, 0, 0, 
-                0, 0, 0, 1, 0, 0, 0, 0, 
-                0, 0, 0, 2, 1, 0, 0, 0, 
-                0, 0, 0, 0, 0, 0, 0, 0, 
-                0, 0, 0, 0, 0, 0, 0, 0, 
-                0, 0, 0, 0, 0, 0, 0, 0, 
-            }, 8, 8);
+                0, 3, 0, 1, 0, 0, 
+                0, 1, 0, 0, 0, 0,  
+                0, 0, 1, 0, 0, 0,  
+                0, 0, 0, 1, 0, 0,  
+                0, 0, 0, 2, 1, 0,  
+                0, 0, 0, 0, 0, 0,  
+            }, 6, 6);
 
             gameState = new State(level);  // initial game
 
-            ia = new TAlgo();
-            ia.States = new List<IState>() { gameState };
-            ia.Transition = Play;
+            agent = new TAlgo();
+            agent.States = new List<IState>() { gameState };
+            agent.Transition = Play;
 
-            ia.Init();
+            agent.Init();
 
             Render();
         }
@@ -69,7 +67,7 @@ namespace GridWorld {
         }
 
         public void TaskOnClick() {
-            int act = ia.Think(gameState);
+            int act = agent.Think(gameState);
             Play(gameState, act, out gameState); // update game state
             Render(); // update rendering
         }

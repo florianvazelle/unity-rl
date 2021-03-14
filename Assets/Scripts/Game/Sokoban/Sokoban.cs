@@ -16,7 +16,7 @@ namespace Sokoban {
         private Level level;
 
         private IState gameState;
-        private TAlgo ia;
+        private TAlgo agent;
 
         public void Start() {   
             if (RL.instance.selectedSokobanLevel == RL.SokobanLevel.Easy)
@@ -50,11 +50,11 @@ namespace Sokoban {
             
             gameState = new State(level);  // initial game
 
-            ia = new TAlgo();
-            ia.States = new List<IState>() { gameState };
-            ia.Transition = Play;
+            agent = new TAlgo();
+            agent.States = new List<IState>() { gameState };
+            agent.Transition = Play;
 
-            ia.Init();
+            agent.Init();
 
             Render();
         }
@@ -88,7 +88,7 @@ namespace Sokoban {
         }
 
         public void TaskOnClick() {
-            int act = ia.Think(gameState);
+            int act = agent.Think(gameState);
             Play(gameState, act, out gameState); // update game state
             Render(); // update rendering
         }

@@ -24,7 +24,8 @@ public class QLearning : TemporalDifference {
                 if (!Q_sa.ContainsKey((s, a))) AddNewStateToQ(s, a);
                 if (!Q_sa.ContainsKey((sprime, aprime))) AddNewStateToQ(sprime, aprime);
                 
-                Q_sa[(s, a)] = Q_sa[(s, a)] + ALPHA * (r + GAMMA * Q_sa[(sprime, aprime)] - Q_sa[(s, a)]);
+                // Bellman Optimality Equation
+                Q_sa[(s, a)] = r + GAMMA * Q_sa[(sprime, aprime)];
                 s = sprime;
                 a = aprime;
                 
